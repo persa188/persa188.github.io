@@ -1,6 +1,6 @@
 ---
 layout: post
-title: First post!
+title: Hello World!
 tags: [random, exciting-stuff]
 ---
 
