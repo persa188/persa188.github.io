@@ -40,10 +40,10 @@ avatar: "/img/avatar-icon.png"
 # Important: you must keep the "name" parameter, everything else you can remove
 author:
   name: Daniel Persaud
-  email: "youremail@domain.com"
-  facebook: yourname  # eg. daattali
-  github: yourname    # eg. daattali
-  twitter: yourname   # eg. daattali
+  email: "dev.persaud@mail.utoronto.ca"
+  facebook: daniel.persaud.75  # eg. daattali
+  github: persa188    # eg. daattali
+  twitter: @nhld4n   # eg. daattali
   reddit: yourname    # eg. daattali
   google-plus: +yourname   # eg. +DeanAttali or 109424658772469020925
   linkedin: yourname  # eg. daattali
