@@ -7,7 +7,7 @@ subtitle: Why you'd want to go on a date with me
 My name is Daniel Persaud. I have the following qualities:
 
 - I like to hack and code stuff
-- I'm extremely loyal to people that let me take naps
+- I live on coffee, I'm probably enjoying some as you read this
 
 What else do you need?
 
