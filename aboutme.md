@@ -1,7 +1,7 @@
 ---
 layout: page
 title: About me
-subtitle: Why you'd want to buy Starbucks
+subtitle: Why you'd want to buy me Starbucks
 ---
 
 My name is Daniel Persaud. I have the following qualities:
