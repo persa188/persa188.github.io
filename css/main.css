@@ -58,6 +58,7 @@ h1 {
 /* The Modal (background), this entire modal section taken from w3schools */
 .modal {
     display: none; /* Hidden by default */
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
     padding-top: 100px; /* Location of the box */
