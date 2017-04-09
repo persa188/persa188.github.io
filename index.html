@@ -22,8 +22,8 @@
       </button>
       <ul role="menu" class="dropdown-menu pull-right">
         <li id="aboutme"><a>About Me</a></li>
-        <!-- <li><a href="#" class="code">&lt;todo/&gt;</a></li>
-        <li><a href="#" class="code">&lt;todo/&gt;</a></li> -->
+        <li id="ppolicy"><a>Privacy Policy</a></li>
+        <!-- <li><a href="#" class="code">&lt;todo/&gt;</a></li> -->
       </ul>
     </div>
   </div>
@@ -99,7 +99,36 @@
     </div>
   </div>
 
+  <div id="privacy-policy" class="myModal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h1>Privacy Policy</h1>
+      <p>To keep is short and simple I use Google Analytics to collect data
+        about browsers, usage of the site, etc. In order to help with development
+        and ensure that server usage is within normal parameters. I, however, <!DOCTYPE html>
+        respect your privacy so if you're browser sends this site a do not track
+        request the google-analytics script will not run and thus not track you.
+        (unless of course theres a bug in my code that allows it to run anyways, in which case
+         let me know and i'll get right on that!) You can reach me at the liks in the footer.
+      </p>
+      <p>- Daniel</p>
+    </div>
+  </div>
   <!-- js -->
   <script src="js/view.js"></script>
+
+  <!-- anayltics, respect DNT
+   taken from https://til.hashrocket.com/posts/8e5a5f0266-respect-do-not-track -->
+  <script>
+    if (window.navigator.doNotTrack !== '1') {
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-97094865-1', 'auto');
+      ga('send', 'pageview');
+    }
+  </script>
 </body>
 </html>
