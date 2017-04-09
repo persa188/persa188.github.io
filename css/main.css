@@ -1,6 +1,6 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    overflow: hidden;
+    overflow: auto;
     display: flex;
     flex-direction: column;
 }
