@@ -20,9 +20,9 @@
         <i class="fa fa-bars" aria-hidden="true"></i>
       </button>
       <ul role="menu" class="dropdown-menu pull-right">
-        <li><a href="#">HTML</a></li>
-        <li><a href="#">CSS</a></li>
-        <li><a href="#">JavaScript</a></li>
+        <li id="aboutme"><a>About Me</a></li>
+        <!-- <li><a href="#" class="code">&lt;todo/&gt;</a></li>
+        <li><a href="#" class="code">&lt;todo/&gt;</a></li> -->
       </ul>
     </div>
   </div>
@@ -30,7 +30,7 @@
   <!-- header -->
   <div class="container">
     <h1>Daniel Persaud</h1>
-    <p>Computer Science Student @ UofT</p>
+    <p>Software Engineer & CS Student @ UofT</p>
   </div>
 
   <div class="footer">
@@ -50,5 +50,46 @@
       </a>
     </div>
   </div>
+
+  <!-- The Modal, modal html taken from w3schools & edited to fit -->
+  <div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h1 class="code">&lt;bio&gt;</h1>
+      <p class="code innercode"><span class="keyword">var</span>
+        stuff_i_like = [<span class="string">'coffee'</span>,
+        <span class="string">'hacking/tinkering with/breaking code'</span>,
+        <span class="string">'gaming'</span>];
+        <br /> <br />
+        <span class="keyword">var</span> currently_working_on = { <br>
+        <span class="indented-code">
+          <!-- change to a comment class, for whatever reason only inline works -->
+          <span class="comment">/* the git repo for this project
+            currently private, sry */
+          </span></span><br />
+        <span class="indented-code">
+          MeetUp: <span class='string'>'A iOS App to help you meetup with
+            friends irl made with react native'</span>
+        </span>,<br />
+        <span class="indented-code">
+          <a href="https://github.com/persa188/persa188.github.io"
+            style="text-decoration:none;">
+            Personal_Website</a>:
+          <span class='string'>'this website'</span>
+        </span>
+
+        <br />}; <br /> <br />
+        <span class="comment">/* not really sure what else put, so...*/</span>
+        <br />
+        <span class="keyword">return</span>;
+      <p>
+      <h1 class="code">&lt;/bio&gt;</h1>
+    </div>
+  </div>
+
+  <!-- js -->
+  <script src="js/view.js"></script>
 </body>
 </html>
