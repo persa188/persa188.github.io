@@ -8,7 +8,7 @@ var view = (function(){
   var span = document.getElementsByClassName("close")[0];
 
   document.getElementById('aboutme').onclick = function () {
-    modal.style.display = "block";
+    modal.style.display = "inline-block";
   }
 
   // When the user clicks on <span> (x), close the modal
