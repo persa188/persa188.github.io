@@ -169,3 +169,12 @@ p {
 .nounderline:hover {
   color: #F62459;
 }
+
+.clickable-keyword {
+  color:#F74160;
+}
+
+.clickable-keyword:hover {
+  text-decoration:none;
+  color:#f8667f;
+}
