@@ -1,5 +1,7 @@
 ﻿body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .container {
@@ -7,7 +9,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: inherit;
 }
 
 .code {
