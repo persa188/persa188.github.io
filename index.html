@@ -1,38 +1,54 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title>Daniel Persaud</title>
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <div class="code"> <p>import { <span id="src" class="variable">src</span> } from git_pages; <p></p></div>
-    <div class="container">
-        <div class="code">
-            <h1>&lt;
-            <span class="keyword">Daniel</span>  <br />
-            <span class="property">git</span>=<span id="git" class="variable">this._git</span> <br />
-            <span class="property">bio</span>=<span id="bio" class="variable">this._bio</span><br />
-            <span class="property">site</span>=<span class="text">'currently under contruction'</span><br />
-            /&gt;
-            </h1> 
-        </div>
-        <!-- The Modal -->
-        <div id="myModal" class="modal">
-
-            <!-- Modal content -->
-            <div class="modal-content">
-                <span id="close-modal" class="close">&times;</span>
-                <h1>Daniel</h1>
-                <p>this is the bio, which I haven't written yet, but I mean the site is under construction soooo.....</p>
-            </div>
-
-        </div>
+  <!-- dropdown menu -->
+  <div class="dropdown-outer">
+    <div class="dropdown-container">
+      <button class="btn btn-default dropdown-toggle"
+        type="button" data-toggle="dropdown" style="border:none;"
+        aria-expanded="true">
+        <i class="fa fa-bars" aria-hidden="true"></i>
+      </button>
+      <ul role="menu" class="dropdown-menu pull-right">
+        <li><a href="#">HTML</a></li>
+        <li><a href="#">CSS</a></li>
+        <li><a href="#">JavaScript</a></li>
+      </ul>
     </div>
+  </div>
 
+  <!-- header -->
+  <div class="container">
+    <h1>Daniel Persaud</h1>
+    <p>Computer Science Student @ UofT</p>
+  </div>
 
-    <!-- js -->
-    <script src="js/view.js"></script>
+  <div class="footer">
+    <div class="footer-content">
+      Made with <i class="fa fa-heart heartico" aria-hidden="true"></i> in Toronto
+      <a href="https://twitter.com/nhld4n">
+        <i class="fa fa-twitter" aria-hidden="true"></i>
+      </a>
+      <a href="https://github.com/persa188" class="gitico">
+        <i class="fa fa-github" aria-hidden="true"></i>
+      </a>
+      <a href="mailto:dev.persaud@mail.utoronto.ca?Subject=Whats%20Up%3F" class="defaultico">
+        <i class="fa fa-envelope" aria-hidden="true"></i>
+      </a>
+      <a href="https://github.com/persa188/persa188.github.io" class="defaultico">
+        <i class="fa fa-code" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
 </body>
 </html>

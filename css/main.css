@@ -1,7 +1,8 @@
-﻿body {
+body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    height: 100vh;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
@@ -10,89 +11,74 @@
     justify-content: center;
     align-items: center;
     height: inherit;
+    height: 100vh;
 }
 
-.code {
-    font-family: monospace;
-    color: rgba(0, 0, 0, 0.6);
-}
-
-.property {
-    color: #66afe9;
-    padding-left: 2em;
-}
-
-.keyword {
-    color: #F74160;
-}
-
-.variable {
-    color: #F74160;
-}
-
-.variable:hover {
-    color: #f8667f;
-    cursor: pointer;
-}
-
-.text {
-    color: #4EBF4E;
-}
-
+/* taken from brandonmowat.com */
 h1 {
-    display: block;
-    font-weight: 300;
-    letter-spacing: -1px;
-    font-size: 45px;
-    line-height: 48px;
+  font-size: 60px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: rgba(0, 0, 0, 0.8);
 }
 
-.invisible {
-    display: none;
+/* taken from brandonmowat.com */
+p {
+  display: block;
+  -webkit-margin-before: 1em;
+  -webkit-margin-after: 1em;
+  -webkit-margin-start: 0px;
+  -webkit-margin-end: 0px;
 }
 
-.visible {
-    display: flex;
+.container p {
+  text-align: center;
+  line-height: 1.3;
+  color: rgba(0, 0, 0, 0.6);
 }
 
-/* The Modal (background), this entire modal section taken from w3schools */
-.modal {
-    display: none; /* Hidden by default */
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+.dropdown-container {
+  position: relative;
+  float: right;
 }
 
-/* Modal Content */
-.modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
+.dropdown-menu {
+  position: absolute;
+  top: 100%; /* Bottom of button */
 }
 
-/* The Close Button */
-.close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
+.dropdown-outer {
+  padding-right: 20px;
+  padding-top: 20px;
 }
 
-.close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
- }
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+}
 
-</style >
+.footer-content {
+  position: relative;
+  padding-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.gitico {
+  color: black;
+}
+
+.gitico:hover {
+  color: #F62459;
+}
+
+.heartico {
+  color: red;
+}
+
+.defaultico {
+  color: #2C3E50;
+}

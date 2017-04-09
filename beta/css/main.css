@@ -1,0 +1,98 @@
+﻿body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: inherit;
+}
+
+.code {
+    font-family: monospace;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.property {
+    color: #66afe9;
+    padding-left: 2em;
+}
+
+.keyword {
+    color: #F74160;
+}
+
+.variable {
+    color: #F74160;
+}
+
+.variable:hover {
+    color: #f8667f;
+    cursor: pointer;
+}
+
+.text {
+    color: #4EBF4E;
+}
+
+h1 {
+    display: block;
+    font-weight: 300;
+    letter-spacing: -1px;
+    font-size: 45px;
+    line-height: 48px;
+}
+
+.invisible {
+    display: none;
+}
+
+.visible {
+    display: flex;
+}
+
+/* The Modal (background), this entire modal section taken from w3schools */
+.modal {
+    display: none; /* Hidden by default */
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+ }
+
+</style >
