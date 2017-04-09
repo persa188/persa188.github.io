@@ -163,3 +163,7 @@ p {
 .nounderline {
   text-decoration: none;
 }
+
+.nounderline:hover {
+  color: #F62459;
+}
