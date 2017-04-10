@@ -184,3 +184,30 @@ p {
   text-decoration:none;
   color:#f8667f;
 }
+
+.icon-outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-inner {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.fbico:hover {
+  color: #3b5998;
+}
+
+.tico:hover {
+  color: #35465c;
+}
+
+.twico:hover {
+  color: #4099FF;
+}
+
+.defaultico-alt {
+  color: #000;
+}
