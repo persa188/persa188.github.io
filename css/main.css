@@ -88,7 +88,7 @@ p {
 }
 
 .gitico {
-  color: black;
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .gitico:hover {
@@ -221,5 +221,5 @@ p {
 }
 
 .defaultico-alt {
-  color: #000;
+  color: rgba(0, 0, 0, 0.8);
 }

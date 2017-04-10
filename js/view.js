@@ -28,8 +28,12 @@ var view = (function(){
       <h1>Find, Follow, & Contact me @</h1> <br>
       <div class="icon-outer">
         <i id="twitter_ico_big" class="fa fa-twitter fa-5x icon-inner twico" aria-hidden="true"></i>
+        <a href="https://facebook.com/daniel.persaud.75" class="gitico">
         <i class="fa fa-facebook fa-5x icon-inner fbico" aria-hidden="true"></i>
+        </a>
+        <a href="tumblr.danielpersaud.ca" class="gitico">
         <i class="fa fa-tumblr fa-5x icon-inner tico" aria-hidden="true"></i>
+        </a>
         <a href="https://github.com/persa188" class="gitico">
           <i class="fa fa-github fa-5x icon-inner" aria-hidden="true"></i>
         </a>
