@@ -1,3 +1,5 @@
 # persa188.github.io
 
-some src code, because why not
+the source code for my personal site.
+
+Feel free to make contributions, pull requests, forks, etc. under the MIT license.
