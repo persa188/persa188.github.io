@@ -25,34 +25,81 @@
       <ul class="nav navbar-nav customnav">
         <li class="customnav-title"><a href="#" class="cs-a">Daniel</a></li>
         <li><a href="#aboutme">About Me</a></li>
-        <!-- <li><a href="#">Page 2</a></li>
-        <li><a href="#">Page 3</a></li> -->
+        <li><a href="#projects">Projects</a></li>
+        <!--<li><a href="#">Page 3</a></li> -->
       </ul>
     </nav>
   </div>
 
   <div id="aboutme" class="aboutme">
-    <div class="abt-title">
-      <h1>About Me</h1>
-    </div>
     <div class="abt-content">
-      <p>the content about me</p>
+      <div class="profile-card">
+        <div class="github-card"
+           data-github="persa188"
+           data-width="300"
+           data-height="217"
+           data-theme="medium">
+        </div>
+      </div>
+      <div class="abt-bio">
+        <div>
+          <h1>About Me</h1>
+        </div>
+        <p>this is where I would put a bio if i had one, but I dont soooo.. lol.
+        feel free to tweet @nhdl4n with some suggestions of what tf to put here
+        or shoot me a email using the link in the footer</p>
+     </div>
+    </div>
+  </div>
+  <hr class="break"/>
+  <div id="projects" class="projects">
+    <div><h1>Projects</h1></div>
+    <div>
+      <p> some stuff i'm currently / was recently working on (see my github for more).</p>
+    </div>
+    <div class="card-container">
+      <div class="card-row">
+        <div class="github-card" data-github="persa188/persa188.github.io"
+          data-width="400"
+          data-height="150"
+          data-theme="default">
+        </div>
+        <div class="github-card" data-github="persa188/url-shortener-frontend"
+          data-width="400"
+          data-height=""
+          data-theme="default">
+        </div>
+      <div>
+      <div class="card-row">
+        <div class="github-card" data-github="persa188/webgallery-app"
+          data-width="400"
+          data-height=""
+          data-theme="default">
+        </div>
+        <div class="github-card" data-github="persa188/stickmanplatformer"
+          data-width="400"
+          data-height=""
+          data-theme="default">
+        </div>
+     </div>
     </div>
   </div>
 
   <div class="footer">
     <div class="footer-content">
       Made with <i class="fa fa-heart heartico" aria-hidden="true"></i> in Toronto
-      <a>
+      <a href="https://twitter.com/nhld4n" class="nounderline twico">
         <i id="twitter_ico" class="fa fa-twitter" aria-hidden="true"></i>
       </a>
-      <a href="https://github.com/persa188" class="gitico">
+      <a href="https://github.com/persa188" class="nounderline gitico">
         <i class="fa fa-github" aria-hidden="true"></i>
       </a>
-      <a href="mailto:dev.persaud@mail.utoronto.ca?Subject=Whats%20Up%3F" class="defaultico">
+      <a href="mailto:dev.persaud@mail.utoronto.ca?Subject=Whats%20Up%3F"
+        class="nounderline defaultico">
         <i class="fa fa-envelope" aria-hidden="true"></i>
       </a>
-      <a href="https://github.com/persa188/persa188.github.io" class="defaultico">
+      <a href="https://github.com/persa188/persa188.github.io"
+      class="nounderline defaultico">
         <i class="fa fa-code" aria-hidden="true"></i>
       </a>
       |
@@ -78,5 +125,8 @@
       ga('send', 'pageview');
     }
   </script>
+
+  <!-- for github cards -->
+  <script src="//cdn.jsdelivr.net/github-cards/latest/widget.js"></script>
 </body>
 </html>

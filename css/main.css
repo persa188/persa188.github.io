@@ -56,6 +56,7 @@ p {
 
 .footer {
   position: relative;
+  padding-top: 20px;
   bottom: 0;
   width: 100%;
   display: flex;
@@ -99,17 +100,34 @@ p {
 }
 
 .aboutme {
-  height: 100vh;
+  padding-top: 30px;
+  height: auto;
   color: rgba(0,0,0,0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
-.abt-title {
+.projects {
+  padding-top: 20px;
+  height: auto;
+  color: rgba(0,0,0,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
 
+.card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  overflow: auto;
+  height: 70%;
 }
 
 .affix {
@@ -117,8 +135,13 @@ p {
     width: 100%;
 }
 
+.card-row {
+  flex-direction: row;
+}
+
 .customnav {
   display: flex;
+  background-color: rgba(0, 0, 0, 0.8);
   flex-direction: row;
   width: 100%;
   justify-content: flex-end;
@@ -142,4 +165,31 @@ p {
 
 .indented-block {
   margin-left: 40px;
+}
+
+.twico:hover {
+  color: blue;
+}
+
+.abt-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.abt-bio {
+  padding-left: 20px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 20px;
+}
+
+.break {
+  width: 25%;
 }
