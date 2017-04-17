@@ -129,6 +129,10 @@ p {
   margin-right: auto;
 }
 
+.customnav-title a {
+  color: #FFF !important;
+}
+
 /*override bootstrap style - no rounded corners*/
 .navbar {
     -webkit-border-radius: 0;
