@@ -12,26 +12,32 @@
     <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-  <!-- dropdown menu -->
-  <div class="dropdown-outer">
-    <div class="dropdown-container">
-      <button class="btn btn-default dropdown-toggle"
-        type="button" data-toggle="dropdown" style="border:none;"
-        aria-expanded="true">
-        <i id="menubtn" class="fa fa-bars fa-2x" aria-hidden="true"></i>
-      </button>
-      <ul role="menu" class="dropdown-menu pull-right">
-        <li id="aboutme"><a>About Me</a></li>
-        <li id="socialmedia"><a>Social Media</a></li>
-        <li id="ppolicy"><a>Privacy Policy</a></li>
-      </ul>
-    </div>
-  </div>
 
   <!-- header -->
-  <div class="container">
+  <div id="header" class="container">
     <h1>Daniel Persaud</h1>
     <p>Software Engineer & CS Student @ UofT</p>
+  </div>
+
+  <!-- navbar from w3schools -->
+  <div id="nav-wrapper">
+    <nav id="nav" class="navbar navbar-inverse" data-spy="affix" data-offset-top="197">
+      <ul class="nav navbar-nav customnav">
+        <li class="active customnav-title"><a href="#">Daniel</a></li>
+        <li><a href="#">Page 1</a></li>
+        <li><a href="#">Page 2</a></li>
+        <li><a href="#">Page 3</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div id="aboutme" class="aboutme">
+    <div class="abt-title">
+      <h1>About Me</h1>
+    </div>
+    <div class="abt-content">
+      <p>the content about me</p>
+    </div>
   </div>
 
   <div class="footer">
@@ -51,78 +57,6 @@
       </a>
     </div>
   </div>
-
-  <!-- The Modal, modal html taken from w3schools & edited to fit -->
-  <div id="myModal" class="myModal">
-
-    <!-- Modal content -->
-    <div class="modal-content animated flipInX">
-      <span class="close">&times;</span>
-      <h1 class="code">&lt;bio&gt;</h1>
-      <p class="code innercode"><span class="keyword">var</span>
-        stuff_i_like = [<span class="string">'coffee'</span>,
-        <span class="string">'hacking/tinkering with/breaking code'</span>,
-        <span class="string">'gaming'</span>];
-        <br /> <br />
-        <span class="keyword">var</span> currently_working_on = { <br>
-        <span class="indented-code">
-          <!-- change to a comment class, for whatever reason only inline works -->
-          <span class="comment">/* the git repo for this project
-            currently private, sry */
-          </span></span><br />
-        <span class="indented-code">
-          MeetUp: <span class='string'>'A iOS App to help you meetup with
-            friends irl made with react native'</span>
-        </span>,<br />
-        <span class="indented-code">
-          <a href="https://github.com/persa188/persa188.github.io"
-            style="text-decoration:none;">
-            Personal_Website</a>:
-          <span class='string'>'this website'</span>
-        </span>
-
-        <br />}; <br /> <br />
-        <span class="keyword">var</span> employment_status =
-          <span class="string">'Software Development Engineer (Intern) @ Amazon this summer'</span>; <br />
-        <br />
-        <span class="comment">/* not really sure what else put, so...*/</span>
-        <br />
-        <span class="keyword">return</span>;
-      <p>
-      <h1 class="code">&lt;/bio&gt;</h1>
-    </div>
-  </div>
-
-  <div id="privacy-policy" class="myModal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h1>Privacy Policy</h1>
-      <p>To keep is short and simple I use Google Analytics to collect data
-        about browsers, usage of the site, etc. In order to help with development
-        and ensure that server usage is within normal parameters. I, however, <!DOCTYPE html>
-        respect your privacy so if your browser sends this site a do not track
-        request the google-analytics script will not run and thus not track you.
-        (unless of course theres a bug in my code that allows it to run anyways, in which case
-         let me know and i'll get right on that!) You can reach me at the liks in the footer.
-      </p>
-      <p>- Daniel</p>
-    </div>
-  </div>
-
-  <div id="twitter_modal" class="myModal">
-    <div class="modal-content modal-content_twitter">
-      <span id="close_tmodal" class="close">&times;</span>
-      <!-- tweet button -->
-      <a href="https://twitter.com/intent/tweet?screen_name=nhld4n" class="twitter-mention-button" data-show-count="false">Tweet to @TwitterDev</a>
-      <!-- follow button -->
-      <a href="https://twitter.com/nhld4n" class="twitter-follow-button" data-show-count="true">Follow @nhld4n</a>
-      <!-- the twitter feed -->
-      <a class="twitter-timeline" data-theme="light" data-link-color="#19CF86" href="https://twitter.com/nhld4n">Tweets by nhld4n</a>
-      <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-    </div>
-  </div>
-
-  <div id="social-media-modal" class="myModal"></div>
 
   <!-- js -->
   <script src="js/view.js"></script>
