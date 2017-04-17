@@ -1,0 +1,30 @@
+.container-privacy-policy {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+}
+
+.policy-content {
+  align-self: flex-start;
+  overflow: auto;
+  height: 70%;
+}
+
+.footer-policy {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding-bottom: 20px;
+  padding-top: 10px;
+}
+
+.fctr {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
