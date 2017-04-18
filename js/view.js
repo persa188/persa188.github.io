@@ -6,7 +6,7 @@ var view = (function(){
  document.querySelector('body').addEventListener('click', function(event) {
  })
 
-  // When the user clicks anywhere outside of the modal, close it
+  // prevent nav from jumping, want to stick properly
   window.onload =   $(function() {
         $('#nav-wrapper').height($("#nav").height());
 
