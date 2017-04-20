@@ -193,3 +193,28 @@ p {
 .break {
   width: 25%;
 }
+
+/* This only works with JavaScript,
+if it's not present, don't show loader,
+took this code from a nice tutorial
+@ http://smallenvelop.com/display-loading-icon-page-loads-completely/
+*/
+.no-js #loader { display: none;  }
+.js #loader { display: block; position: absolute; left: 100px; top: 0; }
+.se-pre-con {
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+	height: 100%;
+	z-index: 9999;
+	background: url(../imgs/loader-64x/Preloader_2.gif) center no-repeat #fff;
+}
+
+.se-pre-con h4 {
+  padding-top: 84px;
+  color: #2F4F4F;
+}
