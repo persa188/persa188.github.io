@@ -11,7 +11,10 @@ var view = (function(){
         $('#nav-wrapper').height($("#nav").height());
 
         $('#nav').affix({
-            offset: { top: $('#nav').offset().top }
+            offset: {
+              top: $('#nav').offset().top,
+              bottom: $('#nav').offset().bottom
+            }
         });
     });
 

@@ -121,22 +121,9 @@ p {
   width: 100%;
 }
 
-.card-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  overflow: auto;
-  height: 70%;
-}
-
 .affix {
     top: 0;
     width: 100%;
-}
-
-.card-row {
-  flex-direction: row;
 }
 
 .customnav {
@@ -171,23 +158,12 @@ p {
   color: blue;
 }
 
-.abt-content {
-  display: flex;
-  flex-direction: row;
-}
-
 .abt-bio {
   padding-left: 20px;
   justify-content: center;
   text-align: center;
+  width: 60%;
   align-items: center;
-}
-
-.profile-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 20px;
 }
 
 .break {
