@@ -187,7 +187,7 @@ took this code from a nice tutorial
   display: flex;
 	height: 100%;
 	z-index: 9999;
-	background: url(../imgs/loader-64x/Preloader_2.gif) center no-repeat #fff;
+	background: url(../imgs/loader-64x/Preloader_5.gif) center no-repeat #fff;
 }
 
 .se-pre-con h4 {
