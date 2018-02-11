@@ -3,9 +3,6 @@ var view = (function(){
 
   var view = {};
 
- document.querySelector('body').addEventListener('click', function(event) {
- })
-
   // prevent nav from jumping, want to stick properly
   window.onload =   $(function() {
         $('#nav-wrapper').height($("#nav").height());
@@ -16,6 +13,10 @@ var view = (function(){
               bottom: $('#nav').offset().bottom
             }
         });
+        /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+        particlesJS.load('header', 'assets/particles.json', function() {
+          console.log('callback - particles.js config loaded');
+        });
     });
 
   // Wait for window load
@@ -25,4 +26,4 @@ var view = (function(){
   });
 
   return view;
-}(window));
+}(window, particlesJS));
