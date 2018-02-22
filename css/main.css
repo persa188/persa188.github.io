@@ -1,6 +1,6 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow: auto;
+  overflow: hidden;
   margin: 0;
   height: 100%;
 }
@@ -19,11 +19,20 @@ body {
   background-size: cover;
 }
 
+.maintenance-ctnr {
+  z-index: 100;
+  background: url("../imgs/maintenance_msg.png") no-repeat center center;
+  background-size: 100%;
+  border-radius: 25px;
+  width: 75vh;
+  height: 55vh;
+}
+
 #header canvas{
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 100;
+  z-index: 99;
 }
 #header h1, p {
   padding: 0;
@@ -66,12 +75,14 @@ p {
 }
 
 .footer {
-  position: relative;
+  z-index: 100;
+  position: fixed;
   padding-top: 20px;
   bottom: 0;
   width: 100%;
   display: flex;
   opacity: 0.27;
+  background-color: #FFF;
 }
 
 .footer-content {
@@ -80,6 +91,7 @@ p {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  height: 100%;
 }
 
 .gitico {
