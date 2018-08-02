@@ -1,34 +1,70 @@
-body {
-  height: 100vh;
-  width: 100%;
-  font-family: "San Francisco", -apple-system, BlinkMacSystemFont;
+html,body {
   margin: 0;
   padding: 0;
 }
 
+body {
+  height: 100vh;
+  width: 100%;
+  font-family: "Helvetica Neue", sans-serif;;
+}
+
 .container {
   display: flex;
-  height: 95%;
+  height: 100%;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0.5)
+    ), url(../imgs/bg-min.jpg) no-repeat center center;
+  background-size: cover;
+  width: 100%;
 }
 
 .topnav {
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
+  flex-direction: row;
   width: 100%;
-  height: 5%;
+  min-height: 50px;
+  align-items: center;
   justify-content: flex-end;
 }
 
 .nav-item {
   color: #D3D3D3;
-  margin: 5px;
+  margin: 10px;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 .nav-item:hover {
   color: #FF7373;
 }
+
+.nav-brand {
+  color: #FFF;
+  margin-right: auto;
+}
+
+.nav-brand:hover {
+  color: #D3D3D3;
+}
+
+.invis {
+  display: none;
+}
+
+.nav-bg {
+  background-color: #111111;
+}
+
+.header h1{ color: #FFFFFF;}
+.header h2 {color: #FFFFFF;}
 
 h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; font-weight: normal; letter-spacing: -1px; line-height: 1; text-align: center; }
 
