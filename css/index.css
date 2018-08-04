@@ -46,6 +46,9 @@ body {
   color: #FF7373;
 }
 
+.nav-item-highlighted {
+  color: #FF7373;
+}
 .nav-brand {
   color: #FFF;
   margin-right: auto;
@@ -67,6 +70,16 @@ body {
 
 .header {
   margin-top: 100px;
+}
+
+.summary-block {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+/* qualified heading */
+.summary-block h1 {
+  text-align:left;
 }
 
 h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; font-weight: normal; letter-spacing: -1px; line-height: 1; text-align: center; }
