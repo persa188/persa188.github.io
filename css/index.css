@@ -34,12 +34,12 @@ body {
   min-height: 50px;
   align-items: center;
   justify-content: flex-end;
+  transition: background-color 1s;
 }
 
 .nav-item {
   color: #D3D3D3;
   margin-left: 10px;
-  /* margin-right: 10px; */
   font-size: 20px;
   cursor: pointer;
 }
@@ -60,21 +60,19 @@ body {
 }
 .nav-brand {
   color: #FFF;
+  color: rgba(255,255,255,0);
   margin-right: auto;
   margin-left: 2%;
+  transition: color 1s;
 }
 
 .nav-brand:hover {
   color: #D3D3D3;
 }
 
-.invis {
-  display: none;
-}
-
 .nav-bg {
   background-color: #111111;
-  background-color: rgba(0,0,0,0.95);
+  /* background-color: rgba(0,0,0,0.95); */
 }
 
 .wh {color:#FFF;}
@@ -99,15 +97,12 @@ body {
 }
 
 .summary-block p {
-  /* color: #111111;
-  color: rgba(0, 0, 0, 0.8); */
   color:#373D3F;
   margin: 0;
 }
 
 .summary-block h1 {
   text-align:left;
-  /*color: rgba(0, 0, 0, 0.8);*/
   color:#373D3F;
 }
 
