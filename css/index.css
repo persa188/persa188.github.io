@@ -6,7 +6,8 @@ html,body {
 body {
   height: 100vh;
   width: 100%;
-  font-family: "Helvetica Neue", sans-serif;;
+  font-family: "Helvetica Neue", sans-serif;
+  background: #f2f2f2;
 }
 
 .container {
@@ -37,21 +38,30 @@ body {
 
 .nav-item {
   color: #D3D3D3;
-  margin: 10px;
+  margin-left: 10px;
+  /* margin-right: 10px; */
   font-size: 20px;
   cursor: pointer;
 }
 
+.nav-item-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-right: 2%;
+}
+
 .nav-item:hover {
-  color: #FF7373;
+  color: #FFF;
 }
 
 .nav-item-highlighted {
-  color: #FF7373;
+  color: #FFF;
 }
 .nav-brand {
   color: #FFF;
   margin-right: auto;
+  margin-left: 2%;
 }
 
 .nav-brand:hover {
@@ -64,6 +74,7 @@ body {
 
 .nav-bg {
   background-color: #111111;
+  background-color: rgba(0,0,0,0.95);
 }
 
 .wh {color:#FFF;}
@@ -72,14 +83,77 @@ body {
   margin-top: 100px;
 }
 
+.about {
+  min-height: 45vh;
+  margin-bottom: 5%;
+}
+
 .summary-block {
   margin-left: 10%;
   margin-right: 10%;
 }
 
-/* qualified heading */
+.summary-block p {
+  /* color: #111111;
+  color: rgba(0, 0, 0, 0.8); */
+  color:#373D3F;
+  margin: 0;
+}
+
 .summary-block h1 {
   text-align:left;
+  /*color: rgba(0, 0, 0, 0.8);*/
+  color:#373D3F;
+}
+
+.contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFF;
+  background: #111111;
+  width: 100%;
+  min-height: 55vh;
+  max-height: 100vh;
+}
+
+.contact h2 {
+  color: #FFF;
+  margin-bottom:10px;
+}
+
+.contact p {
+  text-align: center;
+  color: #D3D3D3;
+  margin-top: 10px;
+}
+
+.f-ico {
+  margin-left: 2px;
+  margin-right: 2px;
+  color: #FFF;
+}
+
+.contact div{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact div p{
+  display: flex;
+  justify-content: space-around;
+  min-width: 20%;
+}
+
+.footer {
+  background: #111111;
+  display: flex;
+  justify-content: center;
+  color: #778899;
+  font-size: 12px;
+  height: 5vh;
 }
 
 h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; font-weight: normal; letter-spacing: -1px; line-height: 1; text-align: center; }
@@ -88,4 +162,4 @@ h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; fo
 h2 { color: #111; font-family: 'Open Sans', sans-serif; font-size: 30px; font-weight: 300; line-height: 32px; margin: 0 0 72px; text-align: center; }
 
 
-p { color: #685206; font-family: 'Helvetica Neue', sans-serif; font-size: 14px; line-height: 24px; margin: 0 0 24px; text-align: justify; text-justify: inter-word; }
+p { color: #685206; font-family: 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 24px; margin: 0 0 24px; text-align: justify; text-justify: inter-word; }

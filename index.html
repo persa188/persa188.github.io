@@ -18,6 +18,7 @@
       	background: url(imgs/loader-64x/Preloader_5.gif) center no-repeat #fff;
       }
     </style>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="css/index.css">
 </head>
 <body>
@@ -26,15 +27,17 @@
     <div id="nav-brand" class="invis">
       Daniel
     </div>
-    <div id="about-nv-btn" class="nav-item">
-      &#35;About
-    </div>
-    <div id="contact-nv-btn" class="nav-item">
-      &#35;Contact
+    <div class="nav-item-wrapper">
+      <div id="about-nv-btn" class="nav-item">
+        &#35;about
+      </div>
+      <div id="contact-nv-btn" class="nav-item">
+        &#35;contact
+      </div>
     </div>
   </div>
 
-  <div class="container">
+  <section id="main" class="container">
     <div class="header">
       <h1><span class="wh">Daniel Persaud</span></h1>
       <div class="intro">
@@ -43,16 +46,38 @@
         </h2>
       </div> <!-- intro -->
     </div> <!-- header -->
-  </div> <!-- container -->
+  </section> <!-- container -->
 
-  <div id="about">
+  <section id="about" class="about">
     <div class="summary-block">
-      <h1>#About</h1>
+      <h1>#about</h1>
       <p>
+        I haven't written an intro yet, keep reading if you love lorem-ipsum though.
         Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
       </p>
     </div>
-  </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div>
+      <h2>drop me a line</h2>
+      <hr style="width: 60px;"/>
+      <p>
+        <i class="fab fa-twitter fa-2x f-ico" onclick="window.location.href='https://twitter.com/nhld4n'"></i>
+        <i class="fab fa-facebook-square fa-2x f-ico" onclick="window.location.href='https://facebook.com/daniel.persaud.75'"></i>
+        <i class="fab fa-github fa-2x f-ico" onclick="window.location.href='https://github.com/persa188'"></i>
+        <i class="fab fa-linkedin fa-2x f-ico" onclick="window.location.href='https://www.linkedin.com/in/daniel-persaud-35164849/'"></i>
+        <i class="far fa-envelope fa-2x f-ico" onclick="window.location.href='mailto:dev.persaud@mail.utoronto.ca'"></i>
+      </p>
+    </div>
+  </section>
+
+  <section class="footer">
+    <div>
+      &copy; 2018 Daniel Persaud | made with <i class="fas fa-heart"></i> in Toronto.
+      &mdash; <a href="https://pp.danielpersaud.co" style="color:#D3D3D3">Privacy Policy</a>
+    </div>
+  </section>
 
   <!-- scripts -->
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>

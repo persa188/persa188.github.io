@@ -13,13 +13,18 @@ var view = (function(){
   var top_nav = document.getElementById('topnav');
   var top_nav_brand = document.getElementById("nav-brand");
   var top_nav_about = document.getElementById("about-nv-btn");
+  var top_nav_contact = document.getElementById("contact-nv-btn");
 
   top_nav_about.onclick = function() {
-    scrollTo("#about")
+    scrollTo("#about");
   }
 
-  document.getElementById("contact-nv-btn").onclick = function() {
-    window.location.href="mailto:dev.persaud@mail.utoronto.ca";
+  top_nav_contact.onclick = function() {
+    scrollTo("#contact");
+  }
+
+  top_nav_brand.onclick = function() {
+    scrollTo("#main");
   }
 
   window.addEventListener('scroll', function(e) {
@@ -30,12 +35,12 @@ var view = (function(){
 
     //highlight the currently focused section in NAV
     top_nav_about.className = isScrolledIntoView("#about") ? NAV_ITEM_HIGHLITED : NAV_ITEM;
-    //top_nav_about.className = isScrolledIntoView("#contact") ? NAV_ITEM_HIGHLITED : NAV_ITEM;
+    top_nav_contact.className = isScrolledIntoView("#contact") ? NAV_ITEM_HIGHLITED : NAV_ITEM;
   });
 
   var scrollTo = function(EID) {
     $('html, body').animate({
-      scrollTop: $(EID).offset().top
+      scrollTop: $(EID).offset().top - 150
     }, 1000);
   }
 
@@ -50,6 +55,7 @@ var view = (function(){
 
       return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
   }
+
 
   return view;
 }($,window));
