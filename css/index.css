@@ -84,8 +84,13 @@ body {
 }
 
 .about {
-  min-height: 45vh;
+  /* min-height: 45vh; */
+  margin-top: 5%;
   margin-bottom: 5%;
+}
+
+.about h1 {
+  margin: 0;
 }
 
 .summary-block {
