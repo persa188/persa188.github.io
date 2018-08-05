@@ -40,7 +40,7 @@ var view = (function(){
 
   var scrollTo = function(EID) {
     $('html, body').animate({
-      scrollTop: $(EID).offset().top - 150
+      scrollTop: $(EID).offset().top
     }, 1000);
   }
 
