@@ -24,71 +24,14 @@ body {
   width: 100%;
 }
 
-.topnav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  min-height: 50px;
-  align-items: center;
-  justify-content: flex-end;
-  transition: background-color 1s;
-}
-
-.nav-item {
-  color: #D3D3D3;
-  margin-left: 10px;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.nav-item-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  margin-right: 2%;
-}
-
-.nav-item:hover {
-  color: #FFF;
-}
-
-.nav-item-highlighted {
-  color: #FFF;
-}
-.nav-brand {
-  color: #FFF;
-  color: rgba(255,255,255,0);
-  margin-right: auto;
-  margin-left: 2%;
-  transition: color 1s;
-}
-
-.nav-brand:hover {
-  color: #D3D3D3;
-}
-
-.nav-bg {
-  background-color: #111111;
-  /* background-color: rgba(0,0,0,0.95); */
-}
-
 .wh {color:#FFF;}
 
 .header {
   margin-top: 100px;
-}
-
-.about {
-  /* min-height: 45vh; */
-  margin-top: 5%;
-  margin-bottom: 5%;
-}
-
-.about h1 {
-  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .summary-block {
@@ -155,6 +98,55 @@ body {
   color: #778899;
   font-size: 12px;
   height: 5vh;
+}
+
+.bounce {
+  display: inline-block;
+  position: relative;
+  -moz-animation: bounce 0.5s infinite linear;
+  -o-animation: bounce 0.5s infinite linear;
+  -webkit-animation: bounce 0.5s infinite linear;
+  animation: bounce 0.5s infinite linear;
+  colr:000;
+}
+
+.circle-down {
+  margin-top: 10%;
+  height: 35px;
+  width: 35px;
+  background: url(../imgs/chev-circle-down.png) no-repeat center center;
+  background-size: cover;
+}
+
+@-webkit-keyframes bounce {
+    0% { top: 0; }
+    50% { top: -0.2em; }
+    70% { top: -0.3em; }
+    100% { top: 0; }
+}
+@-moz-keyframes bounce {
+    0% { top: 0; }
+    50% { top: -0.2em; }
+    70% { top: -0.3em; }
+    100% { top: 0; }
+}
+@-o-keyframes bounce {
+    0% { top: 0; }
+    50% { top: -0.2em; }
+    70% { top: -0.3em; }
+    100% { top: 0; }
+}
+@-ms-keyframes bounce {
+    0% { top: 0; }
+    50% { top: -0.2em; }
+    70% { top: -0.3em; }
+    100% { top: 0; }
+}
+@keyframes bounce {
+    0% { top: 0; }
+    50% { top: -0.2em; }
+    70% { top: -0.3em; }
+    100% { top: 0; }
 }
 
 h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; font-weight: normal; letter-spacing: -1px; line-height: 1; text-align: center; }
