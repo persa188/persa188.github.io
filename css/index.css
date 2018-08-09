@@ -129,11 +129,11 @@ body {
     height: 40px;
     border-radius: 100%;
 
-    -webkit-animation: bounce 3s infinite ease-in-out;
-    -o-animation: bounce 3s infinite ease-in-out;
-    -ms-animation: bounce 3s infinite ease-in-out;
-    -moz-animation: bounce 3s infinite ease-in-out;
-    animation: bounce 3s infinite ease-in-out;
+    -webkit-animation: bounce 1s infinite ease-in-out;
+    -o-animation: bounce 1s infinite ease-in-out;
+    -ms-animation: bounce 1s infinite ease-in-out;
+    -moz-animation: bounce 1s infinite ease-in-out;
+    animation: bounce 1s infinite ease-in-out;
 }
 
 h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; font-weight: normal; letter-spacing: -1px; line-height: 1; text-align: center; }
