@@ -108,6 +108,14 @@ body {
   background-size: cover;
 }
 
+.circle-up {
+  margin-top: 20%;
+  height: 35px;
+  width: 35px;
+  background: url(../imgs/chev-circle-up.png) no-repeat center center;
+  background-size: cover;
+}
+
 @-webkit-keyframes bounce {
     0% { transform: translateY(-3px)  }
     50% { transform: translateY(5px) }

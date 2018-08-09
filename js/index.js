@@ -1,11 +1,6 @@
 var view = (function(){
   "use strict";
 
-  const CLR_TRANSPARENT = "rgba(0,0,0,0)";
-  const CLR_BLK = "rgba(0,0,0,1)";
-  const CLR_WHITE = "#FFF";
-  const NAV_ITEM_HIGHLITED = "nav-item nav-item-highlighted";
-  const NAV_ITEM = "nav-item";
   const SCROLL_OFFSET = 100;
 
   var view = {};
@@ -13,7 +8,23 @@ var view = (function(){
   var c_down = document.getElementById('c-down');
 
   c_down.onclick = function() {
-    scrollTo("#contact");
+    var e = (c_down.className == "circle-up zio") ? "#main" : "#contact";
+    scrollTo(e);
+  }
+
+  document.addEventListener('scroll', function(e) {
+    var a = isScrolledIntoView("#contact") ? "circle-up zio" : "circle-down zio";
+    c_down.className = a;
+  });
+
+  var isScrolledIntoView = function(elem) {
+      var docViewTop = $(window).scrollTop();
+      var docViewBottom = docViewTop + $(window).height();
+
+      var elemTop = $(elem).offset().top;
+      var elemBottom = elemTop + $(elem).height();
+
+      return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
   }
 
   var scrollTo = function(EID) {
