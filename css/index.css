@@ -100,18 +100,8 @@ body {
   height: 5vh;
 }
 
-.bounce {
-  display: inline-block;
-  position: relative;
-  -moz-animation: bounce 0.5s infinite linear;
-  -o-animation: bounce 0.5s infinite linear;
-  -webkit-animation: bounce 0.5s infinite linear;
-  animation: bounce 0.5s infinite linear;
-  colr:000;
-}
-
 .circle-down {
-  margin-top: 10%;
+  margin-top: 20%;
   height: 35px;
   width: 35px;
   background: url(../imgs/chev-circle-down.png) no-repeat center center;
@@ -119,34 +109,31 @@ body {
 }
 
 @-webkit-keyframes bounce {
-    0% { top: 0; }
-    50% { top: -0.2em; }
-    70% { top: -0.3em; }
-    100% { top: 0; }
+    0% { transform: translateY(-3px)  }
+    50% { transform: translateY(5px) }
+    100% { transform: translateY(-3px) }
 }
-@-moz-keyframes bounce {
-    0% { top: 0; }
-    50% { top: -0.2em; }
-    70% { top: -0.3em; }
-    100% { top: 0; }
-}
-@-o-keyframes bounce {
-    0% { top: 0; }
-    50% { top: -0.2em; }
-    70% { top: -0.3em; }
-    100% { top: 0; }
-}
-@-ms-keyframes bounce {
-    0% { top: 0; }
-    50% { top: -0.2em; }
-    70% { top: -0.3em; }
-    100% { top: 0; }
-}
+
 @keyframes bounce {
-    0% { top: 0; }
-    50% { top: -0.2em; }
-    70% { top: -0.3em; }
-    100% { top: 0; }
+    0% { transform: translateY(-3px)  }
+    50% { transform: translateY(5px) }
+    100% { transform: translateY(-3px) }
+}
+
+.zio {
+    position: absolute;
+    margin: 0;
+    bottom: 40px;
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+
+    -webkit-animation: bounce 3s infinite ease-in-out;
+    -o-animation: bounce 3s infinite ease-in-out;
+    -ms-animation: bounce 3s infinite ease-in-out;
+    -moz-animation: bounce 3s infinite ease-in-out;
+    animation: bounce 3s infinite ease-in-out;
 }
 
 h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; font-weight: normal; letter-spacing: -1px; line-height: 1; text-align: center; }
