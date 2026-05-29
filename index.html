@@ -458,6 +458,110 @@ gCrOeTTVRAMcd8vkBcZcNTQyGai1mFYtMaeMx10/U/ACLcKDn1QwOA==
       return new TextDecoder().decode(ptBuffer);
     }
 
+    // --- Tab completion ---
+    const COMMANDS = ['ls', 'cd', 'pwd', 'df', 'du', 'mv', 'cp', 'echo', 'cat', 'decrypt', 'whoami', 'sudo', 'clear', 'sh', 'bash'];
+
+    function completeCommand(prefix) {
+      return COMMANDS
+        .filter(c => c.startsWith(prefix))
+        .map(c => ({ name: c, display: c, type: 'exec' }));
+    }
+
+    function completeFile(partialPath) {
+      const lastSlash = partialPath.lastIndexOf('/');
+      const dirPart  = lastSlash === -1 ? '' : partialPath.substring(0, lastSlash + 1);
+      const namePart = lastSlash === -1 ? partialPath : partialPath.substring(lastSlash + 1);
+
+      let absDir;
+      if (dirPart === '/')      absDir = '/';
+      else if (dirPart === '')  absDir = currentDir;
+      else {
+        const trimmed = dirPart.endsWith('/') ? dirPart.slice(0, -1) : dirPart;
+        absDir = resolvePath(trimmed);
+      }
+      if (!isUnderHome(absDir)) return [];
+
+      const entries = fileSystem[absDir];
+      if (!entries) return [];
+
+      return entries
+        .filter(e => {
+          if (e.name === '.' || e.name === '..') return false;
+          if (e.name.startsWith('.') && !namePart.startsWith('.')) return false;
+          return e.name.startsWith(namePart);
+        })
+        .map(e => ({
+          name:    dirPart + e.name + (e.type === 'dir' ? '/' : ''),
+          display: e.name + (e.type === 'dir' ? '/' : ''),
+          type:    e.type
+        }));
+    }
+
+    function longestCommonPrefix(strs) {
+      if (strs.length === 0) return '';
+      let p = strs[0];
+      for (let i = 1; i < strs.length; i++) {
+        while (!strs[i].startsWith(p)) {
+          p = p.substring(0, p.length - 1);
+          if (!p) return '';
+        }
+      }
+      return p;
+    }
+
+    function showMatchesAbovePrompt(matches) {
+      const activeInput  = document.activeElement;
+      const activePrompt = activeInput && activeInput.closest('.term-prompt');
+      if (!activePrompt) return;
+
+      const line = document.createElement('div');
+      line.className = 'dynamic-output';
+      line.innerHTML = matches.map(m => {
+        let color = '#A9A9A9';
+        if (m.type === 'dir')  color = '#39CCCC';
+        if (m.type === 'exec') color = '#4CAF50';
+        return `<span style="color: ${color}; margin-right: 16px;">${m.display}</span>`;
+      }).join('');
+
+      terminalContainer.insertBefore(line, activePrompt);
+      terminalContainer.scrollTop = terminalContainer.scrollHeight;
+    }
+
+    function tabComplete(input) {
+      const val          = input.value;
+      const cursorPos    = input.selectionStart;
+      const beforeCursor = val.substring(0, cursorPos);
+      const afterCursor  = val.substring(cursorPos);
+
+      const lastSpaceIdx = beforeCursor.lastIndexOf(' ');
+      const prefix       = lastSpaceIdx === -1 ? beforeCursor : beforeCursor.substring(lastSpaceIdx + 1);
+      const isFirstWord  = lastSpaceIdx === -1;
+
+      // First word completes commands, unless it looks like a path (./foo, /foo, ~/foo)
+      const looksLikePath = prefix.startsWith('./') || prefix.startsWith('/') || prefix.startsWith('~');
+      const matches = (isFirstWord && !looksLikePath) ? completeCommand(prefix) : completeFile(prefix);
+
+      if (matches.length === 0) return;
+
+      if (matches.length === 1) {
+        const completion = matches[0].name;
+        const newBefore  = beforeCursor.substring(0, beforeCursor.length - prefix.length) + completion;
+        input.value = newBefore + afterCursor;
+        input.setSelectionRange(newBefore.length, newBefore.length);
+        return;
+      }
+
+      // Multiple — try to extend to longest common prefix; if no progress, list them
+      const lcp = longestCommonPrefix(matches.map(m => m.name));
+      if (lcp.length > prefix.length) {
+        const newBefore = beforeCursor.substring(0, beforeCursor.length - prefix.length) + lcp;
+        input.value = newBefore + afterCursor;
+        input.setSelectionRange(newBefore.length, newBefore.length);
+      } else {
+        showMatchesAbovePrompt(matches);
+      }
+    }
+
     function printLine(text, isHtml = false) {
       const responseLine = document.createElement('div');
       responseLine.className = 'dynamic-output';
@@ -778,6 +882,23 @@ Files are AES-256-GCM, key derived as SHA-256(password).`
 
     document.addEventListener('keydown', async function(e) {
       const links = document.querySelectorAll('.f-ico');
+
+      // Tab — autocomplete commands/paths
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        if (terminalLocked) return;
+        if (currentLinkIndex !== -1) {
+          // If user was navigating links, snap back to the CLI input
+          currentLinkIndex = -1;
+          updateLinkSelection();
+          return;
+        }
+        const activeInput = document.activeElement;
+        if (activeInput && activeInput.classList.contains('terminal-input')) {
+          tabComplete(activeInput);
+        }
+        return;
+      }
 
       // TUI Up Arrow Handling
       if (e.key === 'ArrowUp') {
