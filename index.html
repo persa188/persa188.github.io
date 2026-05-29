@@ -6,252 +6,513 @@
     <meta name="description" content="Personal Site" />
     <title>Daniel</title>
     <link rel="icon" href="/favicon.ico">
-    
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 
     <style>
-        html, body {
+        * {
+          box-sizing: border-box;
           margin: 0;
           padding: 0;
-          box-sizing: border-box;
-          scroll-behavior: smooth;
         }
 
-        body {
-          min-height: 100vh;
+        html, body {
+          height: 100%;
           width: 100%;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-          background: #1a1a1a;
+          font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+          background-color: #1E1E1E;
+          color: #FFFFFF;
+          overflow: hidden;
         }
 
-        .container {
+        .hero-viewport {
+          position: relative;
           display: flex;
-          min-height: 100vh;
-          flex-direction: column;
-          justify-content: center;
           align-items: center;
-          /* FIXED: Removed the trailing comma after linear-gradient context */
-          background: #1a1a1a linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)) url('/imgs/bg-min.avif') no-repeat center center;
-          background-size: cover;
           width: 100%;
+          height: 100vh;
+          padding-left: 10%;
+          background-color: #1E1E1E;
+          background-image: url('/imgs/bg-min.avif');
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: cover;
         }
 
-        .wh { color: #FFF; }
+        .hero-viewport::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          z-index: 1;
+        }
 
-        h1 { 
-          color: #111; 
-          font-family: "Helvetica Neue", sans-serif; 
-          font-size: 62px; 
-          font-weight: normal; 
-          letter-spacing: -1px; 
+        .content-container {
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: flex-start; 
+          margin-top: -5vh; 
+        }
+
+        /* --- Left Side: ANSI Art --- */
+        .text-group {
+          border-right: 2px solid rgba(255, 255, 255, 0.25);
+          padding-right: 36px;
+          text-align: left;
+        }
+
+        .ascii-art {
+          font-size: clamp(10px, 1.3vw, 16px); 
           line-height: 1; 
-          text-align: center; 
+          letter-spacing: 0; 
+          font-weight: 700;
+          color: #FFFFFF;
+          white-space: pre; 
+          margin-bottom: 24px;
         }
 
         h2 { 
-          color: #111; 
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          font-size: 30px; 
-          font-weight: 300; 
-          line-height: 32px; 
-          margin: 0 0 72px; 
-          text-align: center; 
+          font-size: clamp(13px, 2vw, 16px); 
+          font-weight: 400; 
+          color: #A9A9A9; 
         }
 
-        p { 
-          color: #685206; 
-          font-family: "Helvetica Neue", sans-serif; 
-          font-size: 16px; 
-          line-height: 24px; 
-          margin: 0 0 24px; 
-          text-align: justify; 
-          text-justify: inter-word; 
-        }
-
-        .header {
-          margin-top: 100px;
+        /* --- Right Side: Terminal Block --- */
+        .terminal-contact {
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        .summary-block {
-          margin-left: 10%;
-          margin-right: 10%;
-        }
-
-        .summary-block p {
-          color: #373D3F;
-          margin: 0;
-          margin-top: 1%;
-        }
-
-        .summary-block h1 {
-          text-align: left;
-          color: #373D3F;
-        }
-
-        .contact {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: #FFF;
-          background: #111111;
+          align-items: flex-start;
+          padding-left: 36px;
+          padding-top: 2px; 
           width: 100%;
-          min-height: 100vh;
+          max-width: 550px;
+          max-height: 50vh; 
+          overflow-y: auto;
+          -ms-overflow-style: none;  
+          scrollbar-width: none;  
         }
 
-        .contact h2 {
-          color: #FFF;
-          margin-bottom: 10px;
+        .terminal-contact::-webkit-scrollbar {
+          display: none; 
         }
 
-        .contact p {
-          text-align: center;
-          color: #D3D3D3;
-          margin-top: 10px;
-        }
-
-        .contact div {
-          width: 100%;
+        .term-prompt {
           display: flex;
-          flex-direction: column;
           align-items: center;
-          gap: 15px;
+          width: 100%;
+          color: #39CCCC;
+          font-size: 14px;
+          font-weight: 700;
+          margin-bottom: 8px;
+          flex-shrink: 0;
         }
 
+        .prompt-symbol {
+          width: 4ch; 
+          color: #4CAF50;
+          flex-shrink: 0;
+        }
+
+        .type-text {
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          width: 0; 
+          animation: type 0.9s steps(19, end) 0.5s forwards; 
+        }
+
+        .term-cursor {
+          margin-left: 2px;
+          color: #39CCCC;
+        }
+
+        .top-cursor {
+          animation: blink 1s step-end infinite, killCursor 0s forwards 1.5s;
+        }
+
+        /* The Output Block */
         .contact-links {
           display: flex;
-          justify-content: center;
-          gap: 30px;
-          width: 100%;
-          margin-top: 10px;
+          flex-direction: column; 
+          gap: 12px;
+          padding-left: 4ch; 
+          margin-bottom: 12px;
+          flex-shrink: 0;
         }
 
         .f-ico {
-          color: #FFF;
-          transition: color 0.2s ease, transform 0.2s ease;
-          display: inline-block;
+          color: #A9A9A9; 
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          text-decoration: none;
+          transition: color 0.1s ease, transform 0.1s ease;
+          opacity: 0; 
+          display: inline-block; /* Required for transforms */
+        }
+
+        .initial-link:nth-child(1) { animation: snapIn 0s forwards 1.6s; }
+        .initial-link:nth-child(2) { animation: snapIn 0s forwards 1.8s; }
+        .initial-link:nth-child(3) { animation: snapIn 0s forwards 2.0s; }
+
+        /* The .selected class mirrors the hover state for keyboard navigation */
+        .f-ico:hover, .f-ico.selected {
+          color: #39CCCC;
+          transform: translateX(6px); 
+          outline: none;
+        }
+
+        .f-ico span {
+          color: #FFFFFF; 
+          transition: color 0.1s ease;
+        }
+
+        .f-ico:hover span, .f-ico.selected span {
+          color: #39CCCC;
+        }
+
+        .new-prompt {
+          opacity: 0;
+          margin-bottom: 0;
+          animation: snapIn 0s forwards 2.2s;
+        }
+
+        .terminal-input, .terminal-input-locked {
+          background: transparent;
+          border: none;
+          outline: none;
+          color: #FFFFFF;
+          font-family: inherit;
+          font-size: inherit;
+          font-weight: inherit;
+          flex-grow: 1;
+        }
+
+        .terminal-input {
+          caret-color: #39CCCC;
+        }
+
+        .terminal-input-locked {
+          caret-color: transparent;
+        }
+
+        .dynamic-output {
+          color: #A9A9A9;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 1px;
+          line-height: 1.4;
+          padding-left: 4ch;
+          margin-bottom: 12px;
+          flex-shrink: 0;
+          white-space: pre; 
+        }
+
+        /* --- Keyframe Animations --- */
+        @keyframes type {
+          to { width: 19ch; }
+        }
+
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+
+        @keyframes snapIn {
+          to { opacity: 1; }
+        }
+
+        @keyframes killCursor {
+          to { opacity: 0; visibility: hidden; }
+        }
+
+        /* --- Persistent Footer --- */
+        .footer {
+          position: absolute;
+          bottom: 24px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 2;
+          color: #FFFFFF;
+          font-size: 11px;
+          text-align: center;
+          opacity: 0.15;
+          transition: opacity 0.2s ease;
+          white-space: nowrap;
+        }
+
+        .footer:hover {
+          opacity: 0.6;
+        }
+
+        .footer a {
+          color: #FFFFFF; 
           text-decoration: none;
         }
-
-        .f-ico:hover {
-          color: #39CCCC;
-          transform: scale(1.1);
-        }
-
-        .footer {
-          background: #111111;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: #778899;
-          font-size: 12px;
-          height: 10vh;
-        }
-
-        .circle-down {
-          margin-top: 20%;
-          height: 35px;
-          width: 35px;
-          background: url('/imgs/chev-circle-down.png') no-repeat center center;
-          background-size: cover;
-          cursor: pointer;
-        }
-
-        .circle-up {
-          margin-top: 20%;
-          height: 35px;
-          width: 35px;
-          background: url('/imgs/chev-circle-up.png') no-repeat center center;
-          background-size: cover;
-          cursor: pointer;
-        }
-
-        @keyframes bounce {
-          0%, 100% { transform: translateY(-3px); }
-          50% { transform: translateY(5px); }
-        }
-
-        .zio {
-          position: absolute;
-          margin: 0;
-          bottom: 40px;
-          z-index: 20;
-          width: 40px;
-          height: 40px;
-          border-radius: 100%;
-          animation: bounce 1s infinite ease-in-out;
+        
+        .footer a:hover {
+          text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-  <section id="main" class="container">
-    <div class="header">
-      <h1><span class="wh">Daniel Persaud</span></h1>
-      <div class="intro">
-        <h2><span class="wh">Software Engineer, Amazonian, etc.</span></h2>
+  <main class="hero-viewport">
+    <div class="content-container">
+      
+      <div class="text-group">
+        <div class="ascii-art">██████╗  █████╗ ███╗   ██╗██╗███████╗██╗     
+██╔══██╗██╔══██╗████╗  ██║██║██╔════╝██║     
+██║  ██║███████║██╔██╗ ██║██║█████╗  ██║     
+██║  ██║██╔══██║██║╚██╗██║██║██╔══╝  ██║     
+██████╔╝██║  ██║██║ ╚████║██║███████╗███████╗
+╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚══════╝╚══════╝</div>
+        <h2>Software Engineer, Amazonian, etc.</h2>
       </div>
-    </div>
-    <div id="c-down" class="circle-down zio"></div>
-  </section>
 
-  <section id="contact" class="contact">
-    <div>
-      <h2>drop me a line</h2>
-      <hr style="width: 60px; border: 1px solid #FFF;"/>
-      <div class="contact-links">
-        <a href="https://github.com/persa188" target="_blank" rel="noopener" class="f-ico" aria-label="GitHub">
-          <i class="fab fa-github fa-2x"></i>
-        </a>
-        <a href="https://www.linkedin.com/in/daniel-persaud-35164849/" target="_blank" rel="noopener" class="f-ico" aria-label="LinkedIn">
-          <i class="fab fa-linkedin fa-2x"></i>
-        </a>
-        <a href="mailto:web+contact@dpsd.ca" class="f-ico" aria-label="Email">
-          <i class="far fa-envelope fa-2x"></i>
-        </a>
+      <div class="terminal-contact" id="terminal-container">
+        <div class="term-prompt" id="first-prompt">
+          <span class="prompt-symbol">~ $ </span>
+          <span class="type-text">./drop_me_a_line.sh</span>
+          <span class="term-cursor top-cursor">_</span>
+        </div>
+        
+        <div class="contact-links" id="initial-links">
+          <a href="https://github.com/persa188" target="_blank" rel="noopener" class="f-ico initial-link" aria-label="GitHub">
+            > [ <span>github</span> ]
+          </a>
+          <a href="https://www.linkedin.com/in/daniel-persaud-35164849/" target="_blank" rel="noopener" class="f-ico initial-link" aria-label="LinkedIn">
+            > [ <span>linkedin</span> ]
+          </a>
+          <a href="mailto:web+contact@dpsd.ca" class="f-ico initial-link" aria-label="Email">
+            > [ <span>email</span> ]
+          </a>
+        </div>
+
+        <div class="term-prompt new-prompt">
+          <label for="cli-input" class="prompt-symbol">~ $ </label>
+          <input type="text" id="cli-input" class="terminal-input" spellcheck="false" autocomplete="off" autofocus>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <section class="footer">
-    <div>
-      &copy; 2026 Daniel Persaud | made with <i class="fas fa-heart" style="color: #ff4d4d;"></i> in Toronto.
-      &mdash; <a href="https://pp.dpsd.ca" style="color:#D3D3D3; text-decoration: none;">Privacy Policy</a>
     </div>
-  </section>
+
+    <footer class="footer">
+      &copy; 2026 Daniel Persaud | made with <span style="color: #ff4d4d;">&#10084;</span> in Toronto.
+      &mdash; <a href="https://pp.dpsd.ca">Privacy Policy</a>
+    </footer>
+  </main>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const cDown = document.getElementById('c-down');
-      const mainSection = document.getElementById('main');
-      const contactSection = document.getElementById('contact');
+    const terminalContainer = document.getElementById('terminal-container');
+    let currentLinkIndex = -1; // -1 means focus is on the CLI input
+    
+    // Mock File System
+    const fileSystem = [
+      { name: '.', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 28 10:32' },
+      { name: '..', type: 'dir', perms: 'drwxr-xr-x', owner: 'root', size: '4096', date: 'May 28 10:32' },
+      { name: 'drop_me_a_line.sh', type: 'exec', perms: '-rwxr-xr-x', owner: 'daniel', size: '188', date: 'May 28 10:32' },
+      { name: 'resume.pdf', type: 'file', perms: '-rw-r--r--', owner: 'daniel', size: '2048', date: 'May  1 09:00' },
+      { name: 'projects', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 15 14:22' }
+    ];
 
-      if (cDown && mainSection && contactSection) {
-        
-        cDown.addEventListener('click', function () {
-          if (cDown.classList.contains('circle-up')) {
-            mainSection.scrollIntoView({ behavior: 'smooth' });
+    function printLine(text, isHtml = false) {
+      const responseLine = document.createElement('div');
+      responseLine.className = 'dynamic-output';
+      if (isHtml) responseLine.innerHTML = text;
+      else responseLine.innerText = text;
+      terminalContainer.appendChild(responseLine);
+    }
+
+    // Handles styling and focus management for keyboard navigation
+    function updateLinkSelection() {
+      const links = document.querySelectorAll('.f-ico');
+      links.forEach((link, idx) => {
+        if (idx === currentLinkIndex) {
+          link.classList.add('selected');
+          link.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          link.classList.remove('selected');
+        }
+      });
+
+      const activeInput = document.querySelector('.terminal-input');
+      if (currentLinkIndex === -1 && activeInput) {
+        activeInput.focus();
+      } else if (activeInput) {
+        activeInput.blur(); // Hide the blinking cursor when navigating links
+      }
+    }
+
+    function processCommand(cmdStr) {
+      const args = cmdStr.trim().split(/\s+/);
+      const cmd = args[0];
+      if (!cmd) return;
+
+      switch(cmd) {
+        case 'ls':
+          if (args.includes('-la') || args.includes('-al') || args.includes('-l')) {
+            let out = 'total 24<br>';
+            fileSystem.forEach(f => {
+               if (!args.includes('-a') && !args.includes('-la') && !args.includes('-al') && f.name.startsWith('.')) return;
+               let color = '#A9A9A9';
+               if (f.type === 'dir') color = '#39CCCC';
+               if (f.type === 'exec') color = '#4CAF50';
+               out += `${f.perms} 1 ${f.owner} ${f.owner} ${f.size.padStart(5, '&nbsp;')} ${f.date} <span style="color:${color}">${f.name}</span><br>`;
+            });
+            printLine(out, true);
           } else {
-            contactSection.scrollIntoView({ behavior: 'smooth' });
+             let out = '';
+             let includeHidden = args.includes('-a');
+             fileSystem.forEach(f => {
+               if (!includeHidden && f.name.startsWith('.')) return;
+               let color = '#A9A9A9';
+               if (f.type === 'dir') color = '#39CCCC';
+               if (f.type === 'exec') color = '#4CAF50';
+               out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
+             });
+             printLine(out, true);
           }
-        });
+          break;
+        case 'mv':
+          if (args.length < 3) printLine(`mv: missing file operand`);
+          else printLine(`mv: cannot move '${args[1]}' to '${args[2]}': Permission denied`);
+          break;
+        case 'cp':
+          if (args.length < 3) printLine(`cp: missing file operand`);
+          else printLine(`cp: cannot create regular file '${args[2]}': Permission denied`);
+          break;
+        case 'echo':
+          printLine(args.slice(1).join(' '));
+          break;
+        case 'cat':
+          if (args[1] === '../easter_egg' || args[1] === '../easter_egg.txt') {
+             printLine(`> SUCCESS: You navigated up the tree. Keep exploring. The cake is a lie.`);
+          } else if (args[1] === 'drop_me_a_line.sh') {
+             printLine(`#!/bin/bash\necho "My links are below:"`);
+          } else if (args[1] === 'resume.pdf') {
+             printLine(`%PDF-1.4\n%\n... [binary stream]\ncat: resume.pdf: Cannot display binary file to terminal`);
+          } else if (args[1]) {
+             printLine(`cat: ${args[1]}: No such file or directory`);
+          } else {
+             printLine(`cat: missing file operand`);
+          }
+          break;
+        case './drop_me_a_line.sh':
+        case 'sh':
+        case 'bash':
+          const linksHtml = `
+          <div class="contact-links" style="animation: none; opacity: 1;">
+            <a href="https://github.com/persa188" target="_blank" rel="noopener" class="f-ico" style="opacity: 1;">> [ <span>github</span> ]</a>
+            <a href="https://www.linkedin.com/in/daniel-persaud-35164849/" target="_blank" rel="noopener" class="f-ico" style="opacity: 1;">> [ <span>linkedin</span> ]</a>
+            <a href="mailto:web+contact@dpsd.ca" class="f-ico" style="opacity: 1;">> [ <span>email</span> ]</a>
+          </div>`;
+          printLine(linksHtml, true);
+          break;
+        case 'pwd':
+          printLine(`/home/daniel`);
+          break;
+        case 'whoami':
+          printLine(`daniel`);
+          break;
+        case 'sudo':
+          printLine(`daniel is not in the sudoers file. This incident will be reported.`);
+          break;
+        case 'clear':
+          const oldOutputs = document.querySelectorAll('.dynamic-output, .contact-links:not(#initial-links), .term-prompt:not(#first-prompt)');
+          oldOutputs.forEach(o => o.remove());
+          break;
+        default:
+          printLine(`bash: ${cmd}: command not found`);
+      }
+    }
 
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              cDown.className = "circle-up zio";
-            } else {
-              cDown.className = "circle-down zio";
-            }
-          });
-        }, {
-          threshold: 0.4
-        });
+    document.addEventListener('keydown', function(e) {
+      const links = document.querySelectorAll('.f-ico');
 
-        observer.observe(contactSection);
+      // TUI Up Arrow Handling
+      if (e.key === 'ArrowUp') {
+        if (links.length === 0) return;
+        e.preventDefault();
+        if (currentLinkIndex === -1) {
+          currentLinkIndex = links.length - 1; // Jump to the bottom link
+        } else if (currentLinkIndex > 0) {
+          currentLinkIndex--; // Move up the list
+        }
+        updateLinkSelection();
+        return;
+      }
+
+      // TUI Down Arrow Handling
+      if (e.key === 'ArrowDown') {
+        if (links.length === 0) return;
+        e.preventDefault();
+        if (currentLinkIndex !== -1) {
+          if (currentLinkIndex < links.length - 1) {
+            currentLinkIndex++; // Move down the list
+          } else {
+            currentLinkIndex = -1; // Drop off the bottom and return to CLI input
+          }
+          updateLinkSelection();
+        }
+        return;
+      }
+
+      // TUI / CLI Execution Handling
+      if (e.key === 'Enter') {
+        // If a link is currently selected via arrows, open it instead of processing a command
+        if (currentLinkIndex !== -1 && links[currentLinkIndex]) {
+          e.preventDefault();
+          links[currentLinkIndex].click();
+          return;
+        }
+
+        // Otherwise, process normal terminal input
+        const activeInput = document.activeElement;
+        
+        if (activeInput && activeInput.classList.contains('terminal-input')) {
+          e.preventDefault();
+          const val = activeInput.value.trim();
+          
+          activeInput.setAttribute('readonly', true);
+          activeInput.classList.remove('terminal-input');
+          activeInput.classList.add('terminal-input-locked');
+          activeInput.blur();
+          
+          activeInput.parentElement.style.marginBottom = '8px';
+          
+          if (val) processCommand(val);
+
+          const newPrompt = document.createElement('div');
+          newPrompt.className = 'term-prompt';
+          newPrompt.style.marginBottom = '0'; 
+          newPrompt.innerHTML = `
+            <span class="prompt-symbol">~ $ </span>
+            <input type="text" class="terminal-input" spellcheck="false" autocomplete="off">
+          `;
+          
+          terminalContainer.appendChild(newPrompt);
+          
+          const newInput = newPrompt.querySelector('.terminal-input');
+          newInput.focus();
+          terminalContainer.scrollTop = terminalContainer.scrollHeight;
+        }
+      }
+
+      // If the user types any standard character key while navigating links, snap them back to the input line
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && currentLinkIndex !== -1) {
+        currentLinkIndex = -1;
+        updateLinkSelection();
+      }
+    });
+
+    // Ensure clicking the terminal area keeps focus on the input, clearing link selection
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#terminal-container')) {
+        currentLinkIndex = -1;
+        updateLinkSelection();
       }
     });
   </script>
