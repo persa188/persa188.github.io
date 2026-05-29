@@ -1,30 +1,59 @@
-html,body {
+html, body {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
-  font-family: "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background: #f2f2f2;
 }
 
 .container {
   display: flex;
-  height: 100%;
+  min-height: 100vh;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(
-      rgba(0, 0, 0, 0.5),
-      rgba(0, 0, 0, 0.5)
-    ), url(../imgs/bg-min.avif) no-repeat center center;
+  background: #1a1a1a linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+              url(../imgs/bg-min.avif) no-repeat center center;
   background-size: cover;
   width: 100%;
 }
 
-.wh {color:#FFF;}
+.wh { color: #FFF; }
+
+h1 { 
+  color: #111; 
+  font-family: "Helvetica Neue", sans-serif; 
+  font-size: 62px; 
+  font-weight: normal; 
+  letter-spacing: -1px; 
+  line-height: 1; 
+  text-align: center; 
+}
+
+h2 { 
+  color: #111; 
+  font-family: 'Open Sans', "Helvetica Neue", sans-serif;
+  font-size: 30px; 
+  font-weight: 300; 
+  line-height: 32px; 
+  margin: 0 0 72px; 
+  text-align: center; 
+}
+
+p { 
+  color: #685206; 
+  font-family: "Helvetica Neue", sans-serif; 
+  font-size: 16px; 
+  line-height: 24px; 
+  margin: 0 0 24px; 
+  text-align: justify; 
+  text-justify: inter-word; 
+}
 
 .header {
   margin-top: 100px;
@@ -40,14 +69,14 @@ body {
 }
 
 .summary-block p {
-  color:#373D3F;
+  color: #373D3F;
   margin: 0;
   margin-top: 1%;
 }
 
 .summary-block h1 {
-  text-align:left;
-  color:#373D3F;
+  text-align: left;
+  color: #373D3F;
 }
 
 .contact {
@@ -63,7 +92,7 @@ body {
 
 .contact h2 {
   color: #FFF;
-  margin-bottom:10px;
+  margin-bottom: 10px;
 }
 
 .contact p {
@@ -72,23 +101,23 @@ body {
   margin-top: 10px;
 }
 
-.f-ico {
-  margin-left: 2px;
-  margin-right: 2px;
-  color: #FFF;
-}
-
-.contact div{
+.contact div {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.contact div p{
+.contact div p {
   display: flex;
   justify-content: space-around;
   min-width: 20%;
+}
+
+.f-ico {
+  margin-left: 2px;
+  margin-right: 2px;
+  color: #FFF;
 }
 
 .footer {
@@ -116,42 +145,23 @@ body {
   background-size: cover;
 }
 
-@-webkit-keyframes bounce {
-    0% { transform: translateY(-3px)  }
-    50% { transform: translateY(5px) }
-    100% { transform: translateY(-3px) }
-}
-
 @keyframes bounce {
-    0% { transform: translateY(-3px)  }
-    50% { transform: translateY(5px) }
-    100% { transform: translateY(-3px) }
+  0%, 100% { transform: translateY(-3px); }
+  50% { transform: translateY(5px); }
 }
 
 .zio {
-    position: absolute;
-    margin: 0;
-    bottom: 40px;
-    z-index: 20;
-    width: 40px;
-    height: 40px;
-    border-radius: 100%;
-
-    -webkit-animation: bounce 1s infinite ease-in-out;
-    -o-animation: bounce 1s infinite ease-in-out;
-    -ms-animation: bounce 1s infinite ease-in-out;
-    -moz-animation: bounce 1s infinite ease-in-out;
-    animation: bounce 1s infinite ease-in-out;
+  position: absolute;
+  margin: 0;
+  bottom: 40px;
+  z-index: 20;
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  animation: bounce 1s infinite ease-in-out;
 }
 
 .hov:hover {
   color: #39CCCC;
+  transition: color 0.2s ease;
 }
-
-h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 62px; font-weight: normal; letter-spacing: -1px; line-height: 1; text-align: center; }
-
-
-h2 { color: #111; font-family: 'Open Sans', sans-serif; font-size: 30px; font-weight: 300; line-height: 32px; margin: 0 0 72px; text-align: center; }
-
-
-p { color: #685206; font-family: 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 24px; margin: 0 0 24px; text-align: justify; text-justify: inter-word; }
