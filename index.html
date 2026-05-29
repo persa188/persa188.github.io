@@ -27,9 +27,11 @@
           position: relative;
           display: flex;
           align-items: center;
+          justify-content: center;
           width: 100%;
           height: 100vh;
-          padding-left: 10%;
+          padding-left: 8vw; /* breathing room from the left edge */
+          padding-right: 4vw;
           background-color: #1E1E1E;
           background-repeat: no-repeat;
           background-position: center center;
@@ -52,7 +54,8 @@
           z-index: 2;
           display: flex;
           align-items: flex-start; 
-          margin-top: -5vh; 
+          justify-content: center;
+          width: 100%;
         }
 
         /* --- Left Side: ANSI Art --- */
@@ -84,13 +87,15 @@
           flex-direction: column;
           align-items: flex-start;
           padding-left: 36px;
-          padding-top: 2px; 
+          padding-top: 0; /* removed 2px offset so top edge matches ASCII art */
           width: 100%;
-          max-width: 550px;
-          max-height: 50vh; 
+          max-width: clamp(320px, 40vw, 600px);
+          min-width: 0; /* allow flex shrink below content size */
+          height: 50vh; 
           overflow-y: auto;
           -ms-overflow-style: none;  
-          scrollbar-width: none;  
+          scrollbar-width: none;
+          position: relative;
         }
 
         .terminal-contact::-webkit-scrollbar {
@@ -106,12 +111,22 @@
           font-weight: 700;
           margin-bottom: 8px;
           flex-shrink: 0;
+          flex-wrap: wrap;          /* allow long typed commands to wrap */
+          word-break: break-word;
+        }
+
+        /* First prompt line height matched to ASCII art so both columns
+           start at the same vertical level */
+        .term-prompt#first-prompt {
+          line-height: 1;
+          align-items: flex-start;
         }
 
         .prompt-symbol {
-          width: 4ch; 
+          min-width: 4ch;
           color: #4CAF50;
           flex-shrink: 0;
+          white-space: pre; /* keep trailing space after $ for longer paths */
         }
 
         .type-text {
@@ -150,6 +165,8 @@
           transition: color 0.1s ease, transform 0.1s ease;
           opacity: 0; 
           display: inline-block; /* Required for transforms */
+          max-width: 100%;
+          overflow-wrap: anywhere;
         }
 
         .initial-link:nth-child(1) { animation: snapIn 0s forwards 1.6s; }
@@ -186,7 +203,8 @@
           font-family: inherit;
           font-size: inherit;
           font-weight: inherit;
-          flex-grow: 1;
+          flex: 1 1 0;     /* grow to fill, shrink as needed */
+          min-width: 0;    /* allow shrinking inside flex parent */
         }
 
         .terminal-input {
@@ -206,7 +224,9 @@
           padding-left: 4ch;
           margin-bottom: 12px;
           flex-shrink: 0;
-          white-space: pre; 
+          white-space: pre-wrap;     /* wrap at container edge, keep intentional spaces/newlines */
+          overflow-wrap: anywhere;   /* break long unbroken strings (URLs, paths) */
+          max-width: 100%;
         }
 
         /* --- Keyframe Animations --- */
@@ -253,6 +273,47 @@
         
         .footer a:hover {
           text-decoration: underline;
+        }
+
+        /* --- Mobile: stack columns vertically --- */
+        @media (max-width: 700px) {
+          html, body {
+            overflow: auto;        /* let the page scroll if needed */
+          }
+
+          .hero-viewport {
+            height: auto;
+            min-height: 100vh;
+            padding: 32px 20px 80px;
+          }
+
+          .content-container {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .text-group {
+            border-right: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+            padding-right: 0;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+          }
+
+          .ascii-art {
+            font-size: clamp(6px, 2vw, 12px);
+            display: inline-block;   /* so text-align: center works on the pre block */
+            margin-bottom: 16px;
+          }
+
+          .terminal-contact {
+            padding-left: 0;
+            padding-top: 0;
+            max-width: 100%;
+            height: auto;
+            min-height: 40vh;
+          }
         }
     </style>
 </head>
@@ -307,15 +368,95 @@
   <script>
     const terminalContainer = document.getElementById('terminal-container');
     let currentLinkIndex = -1; // -1 means focus is on the CLI input
+    let commandCount = 0;
+    const maxCommands = 30;
+    let terminalLocked = false;
     
-    // Mock File System
-    const fileSystem = [
-      { name: '.', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 28 10:32' },
-      { name: '..', type: 'dir', perms: 'drwxr-xr-x', owner: 'root', size: '4096', date: 'May 28 10:32' },
-      { name: 'drop_me_a_line.sh', type: 'exec', perms: '-rwxr-xr-x', owner: 'daniel', size: '188', date: 'May 28 10:32' },
-      { name: 'resume.pdf', type: 'file', perms: '-rw-r--r--', owner: 'daniel', size: '2048', date: 'May  1 09:00' },
-      { name: 'projects', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 15 14:22' }
-    ];
+    const HOME = '/home/daniel';
+    let currentDir = HOME;
+
+    // Mock File System (path → entries)
+    const fileSystem = {
+      '/home/daniel': [
+        { name: '.', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 28 10:32' },
+        { name: '..', type: 'dir', perms: 'drwxr-xr-x', owner: 'root', size: '4096', date: 'May 28 10:32' },
+        { name: '.ctf', type: 'file', perms: '-rw-r--r--', owner: 'daniel', size: '12', date: 'May 28 11:14' },
+        { name: 'drop_me_a_line.sh', type: 'exec', perms: '-rwxr-xr-x', owner: 'daniel', size: '188', date: 'May 28 10:32' },
+        { name: 'resume', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May  1 09:00' },
+        { name: 'projects', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 15 14:22' }
+      ],
+      '/home/daniel/resume': [
+        { name: '.', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May  1 09:00' },
+        { name: '..', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 28 10:32' },
+        { name: 'amazon.md', type: 'file', perms: '-rw-r--r--', owner: 'daniel', size: '312', date: 'May  1 09:00' },
+        { name: 'carta.md', type: 'file', perms: '-rw-r--r--', owner: 'daniel', size: '256', date: 'May  1 09:00' }
+      ],
+      '/home/daniel/projects': [
+        { name: '.', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 15 14:22' },
+        { name: '..', type: 'dir', perms: 'drwxr-xr-x', owner: 'daniel', size: '4096', date: 'May 28 10:32' },
+        { name: '.secret.txt', type: 'file', perms: '-rw-------', owner: 'daniel', size: '304', date: 'May 28 11:14' },
+        { name: 'dpsd.ca.md', type: 'file', perms: '-rw-r--r--', owner: 'daniel', size: '28', date: 'May 28 10:32' }
+      ]
+    };
+
+    // Canned file contents for cat
+    const fileContents = {
+      'drop_me_a_line.sh': '#!/bin/bash\necho "My links are below:"',
+      '.ctf': 'the victims',
+      '.secret.txt':
+`-----BEGIN ENCRYPTED-----
+3LnR67DlMD0iwqsb4eu1V6feXFDPulVr9Bpc2XDXlD/i4gFm1HKWfn1dKA8LheyZ
+yUqKVZjzO1ZajOpjvJTMJfCI87QUxAEiZnTa6+ldWl/+t3zGmhJgSWyUlZy0zxhm
+Axy7XmU5NJShRbXSw5uHYDbH99r1Pf1ieQIP+id44gfTuz63kF63OrhNQtA5zSC6
+gCrOeTTVRAMcd8vkBcZcNTQyGai1mFYtMaeMx10/U/ACLcKDn1QwOA==
+-----END ENCRYPTED-----`,
+      'dpsd.ca.md': "you're literally using it",
+      'amazon.md':
+`# Amazon
+**Software Engineer II** · Toronto, ON · 2022 — present
+
+- Feb 2026 — present · Amazon Books
+- Aug 2025 — Feb 2026 · Amazon Customer Service
+- 2022 — Aug 2025 · Security (client, device, OS)`,
+      'carta.md': '# Carta\n\n**Software Engineer** · Toronto, ON\n\n[role description — edit me]'
+    };
+
+    // Resolve a path argument (relative, absolute, ~, .., .) to an absolute path.
+    function resolvePath(input) {
+      if (!input || input === '~') return HOME;
+      if (input.startsWith('~/')) input = HOME + input.slice(1);
+      const base = input.startsWith('/') ? '' : currentDir;
+      const parts = (base + '/' + input).split('/');
+      const stack = [];
+      for (const p of parts) {
+        if (p === '' || p === '.') continue;
+        if (p === '..') { stack.pop(); continue; }
+        stack.push(p);
+      }
+      return '/' + stack.join('/');
+    }
+
+    function isUnderHome(path) {
+      return path === HOME || path.startsWith(HOME + '/');
+    }
+
+    // Display path in ~-prefixed form (like a real bash prompt).
+    function displayPath(path) {
+      if (path === HOME) return '~';
+      if (path.startsWith(HOME + '/')) return '~' + path.slice(HOME.length);
+      return path;
+    }
+
+    // AES-GCM decrypt. Key = SHA-256(password). Data = base64(IV || ciphertext || tag).
+    async function aesGcmDecrypt(b64data, password) {
+      const data = Uint8Array.from(atob(b64data), c => c.charCodeAt(0));
+      const iv = data.slice(0, 12);
+      const ct = data.slice(12);
+      const keyMaterial = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+      const cryptoKey = await crypto.subtle.importKey('raw', keyMaterial, 'AES-GCM', false, ['decrypt']);
+      const ptBuffer = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptoKey, ct);
+      return new TextDecoder().decode(ptBuffer);
+    }
 
     function printLine(text, isHtml = false) {
       const responseLine = document.createElement('div');
@@ -323,6 +464,10 @@
       if (isHtml) responseLine.innerHTML = text;
       else responseLine.innerText = text;
       terminalContainer.appendChild(responseLine);
+    }
+
+    function terminalOutput(text, isHtml = false) {
+      printLine('> ' + text, isHtml);
     }
 
     // Handles styling and focus management for keyboard navigation
@@ -345,58 +490,176 @@
       }
     }
 
-    function processCommand(cmdStr) {
+    function triggerSecurityLockout() {
+      terminalLocked = true;
+      terminalOutput('broadcast message from alice+bob@dpsd.ca: intruder detected', true);
+
+      // Single line that we'll update in place
+      const progressLine = document.createElement('div');
+      progressLine.className = 'dynamic-output';
+      terminalContainer.appendChild(progressLine);
+
+      const barWidth = 20;
+      let frame = 0;
+
+      const renderBar = (filled) => {
+        const pct = Math.round((filled / barWidth) * 100);
+        const bar = '█'.repeat(filled) + '░'.repeat(barWidth - filled);
+        progressLine.innerHTML = `&gt; tracing source [${bar}] ${pct}%`;
+      };
+
+      renderBar(0);
+
+      const interval = setInterval(() => {
+        frame++;
+        renderBar(frame);
+        terminalContainer.scrollTop = terminalContainer.scrollHeight;
+
+        if (frame >= barWidth) {
+          clearInterval(interval);
+
+          // Brief pause at 100% before the reset
+          setTimeout(() => {
+            // Clear the entire terminal
+            const oldOutputs = document.querySelectorAll('.dynamic-output, .contact-links:not(#initial-links), .term-prompt:not(#first-prompt)');
+            oldOutputs.forEach(o => o.remove());
+
+            // Show final message in red
+            terminalOutput('<span style="color: #FF4136;">connection reset by peer</span>', true);
+            terminalContainer.scrollTop = terminalContainer.scrollHeight;
+
+            // Disable all inputs
+            const allInputs = document.querySelectorAll('.terminal-input');
+            allInputs.forEach(input => {
+              input.disabled = true;
+              input.style.display = 'none';
+            });
+
+            // Hide the prompt symbols for disabled inputs
+            const prompts = document.querySelectorAll('.term-prompt');
+            prompts.forEach(prompt => {
+              const input = prompt.querySelector('.terminal-input');
+              if (input && input.disabled) {
+                prompt.style.display = 'none';
+              }
+            });
+          }, 500);
+        }
+      }, 180); // 180ms × 20 frames ≈ 3.6s total
+    }
+
+    async function processCommand(cmdStr) {
       const args = cmdStr.trim().split(/\s+/);
       const cmd = args[0];
       if (!cmd) return;
 
+      commandCount++;
+      if (commandCount >= maxCommands) {
+        triggerSecurityLockout();
+        return;
+      }
+
       switch(cmd) {
         case 'ls':
-          if (args.includes('-la') || args.includes('-al') || args.includes('-l')) {
-            let out = 'total 24<br>';
-            fileSystem.forEach(f => {
-               if (!args.includes('-a') && !args.includes('-la') && !args.includes('-al') && f.name.startsWith('.')) return;
-               let color = '#A9A9A9';
-               if (f.type === 'dir') color = '#39CCCC';
-               if (f.type === 'exec') color = '#4CAF50';
-               out += `${f.perms} 1 ${f.owner} ${f.owner} ${f.size.padStart(5, '&nbsp;')} ${f.date} <span style="color:${color}">${f.name}</span><br>`;
-            });
-            printLine(out, true);
-          } else {
-             let out = '';
-             let includeHidden = args.includes('-a');
-             fileSystem.forEach(f => {
-               if (!includeHidden && f.name.startsWith('.')) return;
-               let color = '#A9A9A9';
-               if (f.type === 'dir') color = '#39CCCC';
-               if (f.type === 'exec') color = '#4CAF50';
-               out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
-             });
-             printLine(out, true);
+          {
+            // Separate flags from optional path argument
+            const flags = args.slice(1).filter(a => a.startsWith('-'));
+            const targetArg = args.slice(1).find(a => !a.startsWith('-'));
+            const targetPath = targetArg ? resolvePath(targetArg) : currentDir;
+
+            if (!isUnderHome(targetPath)) {
+              terminalOutput(`ls: cannot open directory '${targetArg}': Permission denied`);
+              break;
+            }
+
+            const contents = fileSystem[targetPath];
+            if (!contents) {
+              // Either a file (show its name) or doesn't exist
+              const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+              const baseName = targetPath.substring(targetPath.lastIndexOf('/') + 1);
+              const parent = fileSystem[parentPath];
+              const entry = parent && parent.find(e => e.name === baseName);
+              if (entry) {
+                printLine(entry.name);
+              } else {
+                terminalOutput(`ls: cannot access '${targetArg}': No such file or directory`);
+              }
+              break;
+            }
+
+            const isLong = flags.some(f => ['-l', '-la', '-al'].includes(f));
+            const showHidden = flags.some(f => ['-a', '-la', '-al'].includes(f));
+
+            if (isLong) {
+              let out = 'total 24<br>';
+              contents.forEach(f => {
+                if (!showHidden && f.name.startsWith('.')) return;
+                let color = '#A9A9A9';
+                if (f.type === 'dir') color = '#39CCCC';
+                if (f.type === 'exec') color = '#4CAF50';
+                out += `${f.perms} 1 ${f.owner} ${f.owner} ${f.size.padStart(5, ' ')} ${f.date} <span style="color:${color}">${f.name}</span><br>`;
+              });
+              printLine(out, true);
+            } else {
+              let out = '';
+              contents.forEach(f => {
+                if (!showHidden && f.name.startsWith('.')) return;
+                let color = '#A9A9A9';
+                if (f.type === 'dir') color = '#39CCCC';
+                if (f.type === 'exec') color = '#4CAF50';
+                out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
+              });
+              printLine(out, true);
+            }
           }
           break;
         case 'mv':
-          if (args.length < 3) printLine(`mv: missing file operand`);
-          else printLine(`mv: cannot move '${args[1]}' to '${args[2]}': Permission denied`);
+          if (args.length < 3) terminalOutput(`mv: missing file operand`);
+          else terminalOutput(`mv: cannot move '${args[1]}' to '${args[2]}': Permission denied`);
           break;
         case 'cp':
-          if (args.length < 3) printLine(`cp: missing file operand`);
-          else printLine(`cp: cannot create regular file '${args[2]}': Permission denied`);
+          if (args.length < 3) terminalOutput(`cp: missing file operand`);
+          else terminalOutput(`cp: cannot create regular file '${args[2]}': Permission denied`);
           break;
         case 'echo':
-          printLine(args.slice(1).join(' '));
+          terminalOutput(args.slice(1).join(' '));
           break;
         case 'cat':
-          if (args[1] === '../easter_egg' || args[1] === '../easter_egg.txt') {
-             printLine(`> SUCCESS: You navigated up the tree. Keep exploring. The cake is a lie.`);
-          } else if (args[1] === 'drop_me_a_line.sh') {
-             printLine(`#!/bin/bash\necho "My links are below:"`);
-          } else if (args[1] === 'resume.pdf') {
-             printLine(`%PDF-1.4\n%\n... [binary stream]\ncat: resume.pdf: Cannot display binary file to terminal`);
-          } else if (args[1]) {
-             printLine(`cat: ${args[1]}: No such file or directory`);
-          } else {
-             printLine(`cat: missing file operand`);
+          {
+            if (!args[1]) {
+              terminalOutput('cat: missing file operand');
+              break;
+            }
+            // Easter egg — string-match before path resolution
+            if (args[1] === '../easter_egg' || args[1] === '../easter_egg.txt') {
+              printLine('> SUCCESS: You navigated up the tree. Keep exploring. The cake is a lie.');
+              break;
+            }
+
+            const resolved = resolvePath(args[1]);
+            if (!isUnderHome(resolved)) {
+              terminalOutput(`cat: ${args[1]}: Permission denied`);
+              break;
+            }
+
+            const parentPath = resolved.substring(0, resolved.lastIndexOf('/')) || '/';
+            const baseName = resolved.substring(resolved.lastIndexOf('/') + 1);
+            const parent = fileSystem[parentPath];
+            const entry = parent && parent.find(e => e.name === baseName);
+
+            if (!entry) {
+              terminalOutput(`cat: ${args[1]}: No such file or directory`);
+              break;
+            }
+            if (entry.type === 'dir') {
+              terminalOutput(`cat: ${args[1]}: Is a directory`);
+              break;
+            }
+            if (fileContents[baseName] !== undefined) {
+              terminalOutput(fileContents[baseName]);
+            } else {
+              terminalOutput(''); // empty file
+            }
           }
           break;
         case './drop_me_a_line.sh':
@@ -410,25 +673,110 @@
           </div>`;
           printLine(linksHtml, true);
           break;
+        case 'cd':
+          {
+            const target = args[1];
+            const resolved = (!target || target === '~') ? HOME : resolvePath(target);
+
+            if (!isUnderHome(resolved)) {
+              terminalOutput(`bash: cd: ${target}: Permission denied`);
+              break;
+            }
+            if (!fileSystem[resolved]) {
+              // Distinguish "not a directory" from "no such file or directory"
+              const parentPath = resolved.substring(0, resolved.lastIndexOf('/')) || '/';
+              const baseName = resolved.substring(resolved.lastIndexOf('/') + 1);
+              const parent = fileSystem[parentPath];
+              const entry = parent && parent.find(e => e.name === baseName);
+              if (entry && entry.type !== 'dir') {
+                terminalOutput(`bash: cd: ${target}: Not a directory`);
+              } else {
+                terminalOutput(`bash: cd: ${target}: No such file or directory`);
+              }
+              break;
+            }
+            currentDir = resolved;
+          }
+          break;
         case 'pwd':
-          printLine(`/home/daniel`);
+          terminalOutput(currentDir);
+          break;
+        case 'df':
+          printLine(
+`Filesystem      Size  Used  Avail Use%  Mounted on
+/dev/persaud       ∞     0      ∞   0%  /`
+          );
+          break;
+        case 'du':
+          printLine(`∞\t${displayPath(currentDir)}`);
           break;
         case 'whoami':
-          printLine(`daniel`);
+          terminalOutput(`mallory`);
           break;
         case 'sudo':
-          printLine(`daniel is not in the sudoers file. This incident will be reported.`);
+          terminalOutput(`daniel is not in the sudoers file. This incident will be reported.`);
+          break;
+        case 'decrypt':
+          {
+            if (args.includes('-h') || args.includes('--help') || args.length === 1) {
+              printLine(
+`Usage: decrypt [-h] -k <key> -f <file>
+
+  -h, --help     show this help
+  -k <key>       decryption key
+  -f <file>      encrypted file to read
+
+Files are AES-256-GCM, key derived as SHA-256(password).`
+              );
+              break;
+            }
+
+            let key = null, file = null;
+            for (let i = 1; i < args.length - 1; i++) {
+              if (args[i] === '-k') key = args[i + 1];
+              if (args[i] === '-f') file = args[i + 1];
+            }
+            if (!key)  { terminalOutput('decrypt: missing key (use -k)');  break; }
+            if (!file) { terminalOutput('decrypt: missing file (use -f)'); break; }
+
+            const resolved = resolvePath(file);
+            if (!isUnderHome(resolved)) {
+              terminalOutput(`decrypt: ${file}: Permission denied`);
+              break;
+            }
+            const parentPath = resolved.substring(0, resolved.lastIndexOf('/')) || '/';
+            const baseName = resolved.substring(resolved.lastIndexOf('/') + 1);
+            const parent = fileSystem[parentPath];
+            const entry = parent && parent.find(e => e.name === baseName);
+            if (!entry)              { terminalOutput(`decrypt: ${file}: No such file or directory`); break; }
+            if (entry.type === 'dir'){ terminalOutput(`decrypt: ${file}: Is a directory`); break; }
+
+            const fileText = fileContents[baseName] || '';
+            const match = fileText.match(/-----BEGIN ENCRYPTED-----\s*([\s\S]+?)\s*-----END ENCRYPTED-----/);
+            if (!match) {
+              terminalOutput(`decrypt: ${file}: not in encrypted format`);
+              break;
+            }
+            const b64 = match[1].replace(/\s+/g, '');
+
+            try {
+              const plaintext = await aesGcmDecrypt(b64, key);
+              terminalOutput(plaintext);
+            } catch (e) {
+              terminalOutput('decrypt: authentication failed: bad key');
+            }
+          }
           break;
         case 'clear':
           const oldOutputs = document.querySelectorAll('.dynamic-output, .contact-links:not(#initial-links), .term-prompt:not(#first-prompt)');
           oldOutputs.forEach(o => o.remove());
           break;
         default:
-          printLine(`bash: ${cmd}: command not found`);
+          terminalOutput(`bash: ${cmd}: command not found`);
       }
     }
 
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', async function(e) {
       const links = document.querySelectorAll('.f-ico');
 
       // TUI Up Arrow Handling
@@ -461,6 +809,12 @@
 
       // TUI / CLI Execution Handling
       if (e.key === 'Enter') {
+        // Block input if terminal is locked
+        if (terminalLocked) {
+          e.preventDefault();
+          return;
+        }
+
         // If a link is currently selected via arrows, open it instead of processing a command
         if (currentLinkIndex !== -1 && links[currentLinkIndex]) {
           e.preventDefault();
@@ -482,13 +836,13 @@
           
           activeInput.parentElement.style.marginBottom = '8px';
           
-          if (val) processCommand(val);
+          if (val) await processCommand(val);
 
           const newPrompt = document.createElement('div');
           newPrompt.className = 'term-prompt';
           newPrompt.style.marginBottom = '0'; 
           newPrompt.innerHTML = `
-            <span class="prompt-symbol">~ $ </span>
+            <span class="prompt-symbol">${displayPath(currentDir)} $ </span>
             <input type="text" class="terminal-input" spellcheck="false" autocomplete="off">
           `;
           
@@ -501,7 +855,7 @@
       }
 
       // If the user types any standard character key while navigating links, snap them back to the input line
-      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && currentLinkIndex !== -1) {
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && currentLinkIndex !== -1 && !terminalLocked) {
         currentLinkIndex = -1;
         updateLinkSelection();
       }
@@ -509,7 +863,7 @@
 
     // Ensure clicking the terminal area keeps focus on the input, clearing link selection
     document.addEventListener('click', (e) => {
-      if (e.target.closest('#terminal-container')) {
+      if (e.target.closest('#terminal-container') && !terminalLocked) {
         currentLinkIndex = -1;
         updateLinkSelection();
       }
