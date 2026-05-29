@@ -210,9 +210,38 @@
     </div>
   </section>
 
-  <!-- Optimized & Deferred Script Handling -->
   <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js" data-auto-replace-svg="nest" defer></script>
-  <script src="js/index.js" defer></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const cDown = document.getElementById('c-down');
+      const mainSection = document.getElementById('main');
+      const contactSection = document.getElementById('contact');
+
+      if (cDown && mainSection && contactSection) {
+        cDown.addEventListener('click', function () {
+          const target = cDown.classList.contains('circle-up') ? mainSection : contactSection;
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              cDown.className = "circle-up zio";
+            } else {
+              cDown.className = "circle-down zio";
+            }
+          });
+        }, {
+          threshold: 0.3
+        });
+
+        observer.observe(contactSection);
+      }
+    }());
+  </script>
 
 </body>
 </html>
