@@ -7,18 +7,21 @@
     <title>Daniel</title>
     <link rel="icon" href="/favicon.ico">
     
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
     <style>
         html, body {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
+          scroll-behavior: smooth; /* Native smooth scrolling handled by browser */
         }
 
         body {
           min-height: 100vh;
           width: 100%;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-          background: #f2f2f2;
+          background: #1a1a1a; /* Dark fallback instantly active */
         }
 
         .container {
@@ -27,8 +30,9 @@
           flex-direction: column;
           justify-content: center;
           align-items: center;
+          /* Fixed Image Path to Absolute Route */
           background: #1a1a1a linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
-                      url(imgs/bg-min.avif) no-repeat center center;
+                      url('/imgs/bg-min.avif') no-repeat center center;
           background-size: cover;
           width: 100%;
         }
@@ -96,8 +100,7 @@
           color: #FFF;
           background: #111111;
           width: 100%;
-          min-height: 55vh;
-          max-height: 100vh;
+          min-height: 100vh; /* Set to full height for flawless scrolling target */
         }
 
         .contact h2 {
@@ -131,6 +134,7 @@
           color: #FFF;
           transition: color 0.2s ease, transform 0.2s ease;
           display: inline-block;
+          text-decoration: none;
         }
 
         .f-ico:hover {
@@ -145,15 +149,26 @@
           align-items: center;
           color: #778899;
           font-size: 12px;
-          height: 5vh;
+          height: 10vh;
         }
 
+        /* Fixed Image Path to Absolute Route */
         .circle-down {
           margin-top: 20%;
           height: 35px;
           width: 35px;
-          background: url(imgs/chev-circle-down.png) no-repeat center center;
+          background: url('/imgs/chev-circle-down.png') no-repeat center center;
           background-size: cover;
+          cursor: pointer;
+        }
+
+        .circle-up {
+          margin-top: 20%;
+          height: 35px;
+          width: 35px;
+          background: url('/imgs/chev-circle-up.png') no-repeat center center;
+          background-size: cover;
+          cursor: pointer;
         }
 
         @keyframes bounce {
@@ -210,22 +225,24 @@
     </div>
   </section>
 
-  <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js" data-auto-replace-svg="nest" defer></script>
-
   <script>
-    (function () {
-      "use strict";
-
+    document.addEventListener("DOMContentLoaded", function () {
       const cDown = document.getElementById('c-down');
       const mainSection = document.getElementById('main');
       const contactSection = document.getElementById('contact');
 
       if (cDown && mainSection && contactSection) {
+        
+        // Fix: Force click handler directly
         cDown.addEventListener('click', function () {
-          const target = cDown.classList.contains('circle-up') ? mainSection : contactSection;
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (cDown.classList.contains('circle-up')) {
+            mainSection.scrollIntoView({ behavior: 'smooth' });
+          } else {
+            contactSection.scrollIntoView({ behavior: 'smooth' });
+          }
         });
 
+        // Track user positioning to flip arrow icon direction cleanly
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -235,12 +252,12 @@
             }
           });
         }, {
-          threshold: 0.3
+          threshold: 0.4 // Triggers accurately across desktop & modern mobile viewpoints
         });
 
         observer.observe(contactSection);
       }
-    }());
+    });
   </script>
 
 </body>
