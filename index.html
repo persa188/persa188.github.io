@@ -353,7 +353,7 @@
 
         <div class="term-prompt new-prompt">
           <label for="cli-input" class="prompt-symbol">~ $ </label>
-          <input type="text" id="cli-input" class="terminal-input" spellcheck="false" autocomplete="off" autofocus>
+          <input type="text" id="cli-input" class="terminal-input" spellcheck="false" autocomplete="off" autofocus data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">
         </div>
       </div>
 
@@ -818,7 +818,7 @@ gCrOeTTVRAMcd8vkBcZcNTQyGai1mFYtMaeMx10/U/ACLcKDn1QwOA==
           terminalOutput(`mallory`);
           break;
         case 'sudo':
-          terminalOutput(`daniel is not in the sudoers file. This incident will be reported.`);
+          terminalOutput(`mallory is not in the sudoers file. This incident will be reported.`);
           break;
         case 'decrypt':
           {
@@ -964,7 +964,7 @@ Files are AES-256-GCM, key derived as SHA-256(password).`
           newPrompt.style.marginBottom = '0'; 
           newPrompt.innerHTML = `
             <span class="prompt-symbol">${displayPath(currentDir)} $ </span>
-            <input type="text" class="terminal-input" spellcheck="false" autocomplete="off">
+            <input type="text" class="terminal-input" spellcheck="false" autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">
           `;
           
           terminalContainer.appendChild(newPrompt);
