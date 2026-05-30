@@ -701,7 +701,6 @@
         if (input?.classList.contains('terminal-input')) {
           e.preventDefault();
           const val = input.value.trim();
-          UI.createNewPrompt();
           
           if (val) {
             const args = val.split(/\s+/);
@@ -711,6 +710,8 @@
             
             Commands[args[0]] ? await Commands[args[0]](args) : UI.output(`bash: ${args[0]}: command not found`);
           }
+          
+          UI.createNewPrompt();
         }
       }
 
