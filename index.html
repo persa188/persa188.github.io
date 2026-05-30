@@ -436,14 +436,15 @@
           { name: 'dpsd.ca.md', type: 'file', perms: '-rw-r--r--', owner: 'daniel', size: '28', date: 'May 28 10:32' }
         ]
       },
+      // Keyed by full path so identically-named files in different dirs never collide.
       fileContents: {
-        'drop_me_a_line.sh': '#!/bin/bash\necho "My links are below:"',
-        '.ctf': 'the victims',
-        'publickey.contact@dpsd.asc': '[ Key hidden for brevity ]\nFetch directly via: curl -sL https://dpsd.ca/publickey.contact@dpsd.asc | gpg --import',
-        '.secret.txt': `-----BEGIN ENCRYPTED-----\n3LnR67DlMD0iwqsb4eu1V6feXFDPulVr9Bpc2XDXlD/i4gFm1HKWfn1dKA8LheyZ\nyUqKVZjzO1ZajOpjvJTMJfCI87QUxAEiZnTa6+ldWl/+t3zGmhJgSWyUlZy0zxhm\nAxy7XmU5NJShRbXSw5uHYDbH99r1Pf1ieQIP+id44gfTuz63kF63OrhNQtA5zSC6\ngCrOeTTVRAMcd8vkBcZcNTQyGai1mFYtMaeMx10/U/ACLcKDn1QwOA==\n-----END ENCRYPTED-----`,
-        'dpsd.ca.md': "you're literally using it",
-        'amazon.md': `# Amazon\n**Software Engineer II** · Toronto, ON · 2022 — present\n\n- Feb 2026 — present · Amazon Books\n- Aug 2025 — Feb 2026 · Amazon Customer Service\n- 2022 — Aug 2025 · Security (client, device, OS)`,
-        'carta.md': '# Carta\n\n**Software Engineer** · Toronto, ON\n\n[role description — edit me]'
+        '/home/daniel/drop_me_a_line.sh': '#!/bin/bash\necho "My links are below:"',
+        '/home/daniel/.ctf': 'the victims',
+        '/home/daniel/publickey.contact@dpsd.asc': '[ Key hidden for brevity ]\nFetch directly via: curl -sL https://dpsd.ca/publickey.contact@dpsd.asc | gpg --import',
+        '/home/daniel/projects/.secret.txt': `-----BEGIN ENCRYPTED-----\n3LnR67DlMD0iwqsb4eu1V6feXFDPulVr9Bpc2XDXlD/i4gFm1HKWfn1dKA8LheyZ\nyUqKVZjzO1ZajOpjvJTMJfCI87QUxAEiZnTa6+ldWl/+t3zGmhJgSWyUlZy0zxhm\nAxy7XmU5NJShRbXSw5uHYDbH99r1Pf1ieQIP+id44gfTuz63kF63OrhNQtA5zSC6\ngCrOeTTVRAMcd8vkBcZcNTQyGai1mFYtMaeMx10/U/ACLcKDn1QwOA==\n-----END ENCRYPTED-----`,
+        '/home/daniel/projects/dpsd.ca.md': "you're literally using it",
+        '/home/daniel/resume/amazon.md': `# Amazon\n**Software Engineer II** · Toronto, ON · 2022 — present\n\n- Feb 2026 — present · Amazon Books\n- Aug 2025 — Feb 2026 · Amazon Customer Service\n- 2022 — Aug 2025 · Security (client, device, OS)`,
+        '/home/daniel/resume/carta.md': '# Carta\n\n**Software Engineer** · Toronto, ON\n\n[role description — edit me]'
       },
       // short = one-liner for `help`; long = body for `man <cmd>`
       manPages: {
@@ -506,6 +507,52 @@
         date: FS.lsDate(),
         ...over
       }),
+
+      // Recursively delete a directory: its fileSystem key, every nested subdir
+      // key, and the fileContents of every file it contains (keyed by full path).
+      removeTree: (dirPath) => {
+        const children = MOCK_DATA.fileSystem[dirPath] || [];
+        children.forEach(child => {
+          if (child.name === '.' || child.name === '..') return;
+          const childPath = dirPath + '/' + child.name;
+          if (child.type === 'dir') FS.removeTree(childPath);
+          else delete MOCK_DATA.fileContents[childPath];
+        });
+        delete MOCK_DATA.fileSystem[dirPath];
+      },
+
+      // Recursively copy a directory tree from srcPath to destPath, creating a
+      // distinct fileSystem key for every level and cloning each file's content
+      // under its new path.
+      copyTree: (srcPath, destPath) => {
+        const srcEntries = MOCK_DATA.fileSystem[srcPath] || [];
+        // Fresh entry array; rebuild . and .. so they aren't shared by reference.
+        MOCK_DATA.fileSystem[destPath] = [
+          FS.makeEntry({ name: '.', type: 'dir' }),
+          FS.makeEntry({ name: '..', type: 'dir' })
+        ];
+        srcEntries.forEach(child => {
+          if (child.name === '.' || child.name === '..') return;
+          MOCK_DATA.fileSystem[destPath].push(FS.makeEntry({ ...child }));
+          const childSrc = srcPath + '/' + child.name;
+          const childDest = destPath + '/' + child.name;
+          if (child.type === 'dir') {
+            FS.copyTree(childSrc, childDest);
+          } else if (MOCK_DATA.fileContents[childSrc] !== undefined) {
+            MOCK_DATA.fileContents[childDest] = MOCK_DATA.fileContents[childSrc];
+          }
+        });
+      },
+
+      // If currentDir no longer exists (e.g. removed by rm), walk back to the
+      // nearest existing ancestor so the prompt and listings stay valid.
+      reconcileCwd: () => {
+        let p = State.currentDir;
+        while (p && p.startsWith(CONFIG.HOME) && !MOCK_DATA.fileSystem[p]) {
+          p = p.substring(0, p.lastIndexOf('/')) || CONFIG.HOME;
+        }
+        State.currentDir = MOCK_DATA.fileSystem[p] ? p : CONFIG.HOME;
+      },
       
       // The single source of truth for checking if a file/dir exists and its permissions
       getEntry: (pathStr, commandName) => {
@@ -539,7 +586,7 @@
         if (!result.entry) {
           result.error = `${commandName}: ${pathStr}: No such file or directory`;
         } else if (result.entry.type !== 'dir') {
-          result.content = MOCK_DATA.fileContents[baseName];
+          result.content = MOCK_DATA.fileContents[targetPath];
         }
 
         return result;
@@ -723,8 +770,12 @@
         if (entry.type === 'dir' && !args.includes('-r')) return UI.output(`rm: cannot remove '${target}': Is a directory`);
         
         MOCK_DATA.fileSystem[parentPath] = MOCK_DATA.fileSystem[parentPath].filter(f => f.name !== filename);
-        if (entry.type === 'dir') delete MOCK_DATA.fileSystem[targetPath];
-        if (MOCK_DATA.fileContents[filename]) delete MOCK_DATA.fileContents[filename];
+        if (entry.type === 'dir') {
+          FS.removeTree(targetPath);
+          FS.reconcileCwd();
+        } else {
+          delete MOCK_DATA.fileContents[targetPath];
+        }
       },
 
       cp: (args, asCmd = 'cp') => {
@@ -761,20 +812,13 @@
         if (MOCK_DATA.fileSystem[destParent].find(f => f.name === destFilename)) return UI.output(`cannot create regular file '${dest}': File exists`);
         
         if (sourceEntry.type === 'dir') {
-          // Copy directory recursively
+          // Register the directory in its parent, then deep-copy the whole tree.
           MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
-          MOCK_DATA.fileSystem[finalDestPath] = [...MOCK_DATA.fileSystem[sourcePath]];
-          
-          // Copy all files in directory
-          MOCK_DATA.fileSystem[sourcePath].forEach(file => {
-            if (file.type !== 'dir' && file.name !== '.' && file.name !== '..' && MOCK_DATA.fileContents[file.name]) {
-              MOCK_DATA.fileContents[file.name] = MOCK_DATA.fileContents[file.name];
-            }
-          });
+          FS.copyTree(sourcePath, finalDestPath);
         } else {
           // Copy file
           MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
-          if (MOCK_DATA.fileContents[sourceFilename]) MOCK_DATA.fileContents[destFilename] = MOCK_DATA.fileContents[sourceFilename];
+          if (MOCK_DATA.fileContents[sourcePath] !== undefined) MOCK_DATA.fileContents[finalDestPath] = MOCK_DATA.fileContents[sourcePath];
         }
       },
 
