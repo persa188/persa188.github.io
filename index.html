@@ -399,7 +399,7 @@
       HOME: '/home/daniel',
       MAX_COMMANDS: 30,
       ALIASES: { 'll': 'ls -l', 'la': 'ls -la', 'l': 'ls' },
-      COMMANDS: ['ls', 'll', 'la', 'l', 'cd', 'pwd', 'df', 'du', 'mv', 'cp', 'rm', 'mkdir', 'echo', 'cat', 'decrypt', 'whoami', 'sudo', 'clear', 'sh', 'bash', 'fullscreen', 'help', 'man']
+      COMMANDS: ['ls', 'll', 'la', 'l', 'cd', 'pwd', 'df', 'du', 'mv', 'cp', 'rm', 'mkdir', 'touch', 'echo', 'cat', 'decrypt', 'whoami', 'sudo', 'clear', 'sh', 'bash', 'fullscreen', 'help', 'man']
     };
 
     // --- 2. State Management ---
@@ -454,6 +454,7 @@
         cat:        { short: 'concatenate and print files',          long: 'cat file\n\nPrint the contents of file to standard output.' },
         echo:       { short: 'display a line of text',               long: 'echo [text...]\n\nWrite its arguments to standard output.' },
         mkdir:      { short: 'make directories',                     long: 'mkdir directory\n\nCreate the named directory if it does not already exist.' },
+        touch:      { short: 'create a file or update its timestamp', long: 'touch file\n\nCreate file if it does not exist, otherwise update its timestamp.' },
         rm:         { short: 'remove files or directories',          long: 'rm [-r] file\n\nRemove files. Use -r to remove directories and their contents recursively.' },
         cp:         { short: 'copy files and directories',           long: 'cp [-r] source dest\n\nCopy source to dest. Use -r to copy directories recursively.' },
         mv:         { short: 'move (rename) files',                  long: 'mv source dest\n\nRename source to dest, or move source into directory dest. Handles directories without extra flags.' },
@@ -743,33 +744,56 @@
     const Commands = {
       ls: (args) => {
         const flags = args.filter(a => a.startsWith('-'));
-        const target = args.find(a => !a.startsWith('-') && a !== 'ls');
-        
-        const { entry, content, error } = FS.getEntry(target, 'ls');
-        if (error) return UI.output(error);
-        
-        if (entry.type !== 'dir') return UI.printLine(entry.name); // It's a file, just echo name
-
+        const targets = args.filter(a => !a.startsWith('-') && a !== 'ls');
         const isLong = flags.some(f => ['-l', '-la', '-al'].includes(f));
         const showHidden = flags.some(f => ['-a', '-la', '-al'].includes(f));
 
-        const visible = content.filter(f => showHidden || !f.name.startsWith('.'));
-        // Block count roughly 4 per entry, matching coreutils' 1K-block convention here.
-        let out = isLong ? `total ${visible.length * 4}<br>` : '';
-        visible.forEach(f => {
-          const color = f.type === 'dir' ? '#39CCCC' : (f.type === 'exec' ? '#4CAF50' : '#A9A9A9');
-          if (isLong) {
-            // Defensive defaults so a malformed entry can never blank the whole listing.
-            const perms = f.perms || (f.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--');
-            const owner = f.owner || 'daniel';
-            const size = String(f.size ?? '4096').padStart(5, ' ');
-            const date = f.date || FS.lsDate();
-            out += `${perms} 1 ${owner} ${owner} ${size} ${date} <span style="color:${color}">${f.name}</span><br>`;
-          } else {
-            out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
-          }
+        // Render a directory's entries (long or short form) to an HTML string.
+        const renderDir = (content) => {
+          const visible = content.filter(f => showHidden || !f.name.startsWith('.'));
+          let out = isLong ? `total ${visible.length * 4}<br>` : '';
+          visible.forEach(f => {
+            const color = f.type === 'dir' ? '#39CCCC' : (f.type === 'exec' ? '#4CAF50' : '#A9A9A9');
+            if (isLong) {
+              // Defensive defaults so a malformed entry can never blank the whole listing.
+              const perms = f.perms || (f.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--');
+              const owner = f.owner || 'daniel';
+              const size = String(f.size ?? '4096').padStart(5, ' ');
+              const date = f.date || FS.lsDate();
+              out += `${perms} 1 ${owner} ${owner} ${size} ${date} <span style="color:${color}">${f.name}</span><br>`;
+            } else {
+              out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
+            }
+          });
+          return out;
+        };
+
+        // No operands: list the current directory.
+        if (targets.length === 0) {
+          const { content } = FS.getEntry(undefined, 'ls');
+          return UI.printLine(renderDir(content), true);
+        }
+
+        // Resolve each operand; files are printed by name, directories listed.
+        // Files come first, then each directory (header-prefixed when listing many).
+        const fileNames = [];
+        const dirs = [];
+        targets.forEach(t => {
+          const { entry, content, error } = FS.getEntry(t, 'ls');
+          if (error) return UI.output(error);
+          if (entry.type === 'dir') dirs.push({ name: t, content });
+          else fileNames.push(entry.name);
         });
-        UI.printLine(out, true);
+
+        if (fileNames.length) {
+          UI.printLine(fileNames.map(n => `<span style="margin-right:16px">${n}</span>`).join(''), true);
+        }
+
+        const multi = (fileNames.length + dirs.length) > 1;
+        dirs.forEach(d => {
+          if (multi) UI.printLine(`${d.name}:`, false);
+          UI.printLine(renderDir(d.content), true);
+        });
       },
 
       cd: (args) => {
@@ -931,6 +955,28 @@
           FS.makeEntry({ name: '.', type: 'dir' }),
           FS.makeEntry({ name: '..', type: 'dir' })
         ];
+      },
+
+      touch: (args) => {
+        if (args.includes('-h') || args.includes('--help')) return UI.help('touch');
+        if (args.length < 2) return UI.output('touch: missing file operand');
+        const target = args.find(a => !a.startsWith('-') && a !== 'touch');
+        const targetPath = FS.resolvePath(target);
+
+        if (!targetPath.startsWith(CONFIG.HOME)) return UI.output(`touch: cannot touch '${target}': Permission denied`);
+
+        const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+        const filename = targetPath.substring(targetPath.lastIndexOf('/') + 1);
+        if (!MOCK_DATA.fileSystem[parentPath]) return UI.output(`touch: cannot touch '${target}': No such file or directory`);
+
+        const existing = MOCK_DATA.fileSystem[parentPath].find(f => f.name === filename);
+        if (existing) {
+          // Like real touch: bump the timestamp of an existing entry.
+          existing.date = FS.lsDate();
+        } else {
+          MOCK_DATA.fileSystem[parentPath].push(FS.makeEntry({ name: filename, type: 'file', size: '0' }));
+          MOCK_DATA.fileContents[targetPath] = '';
+        }
       },
       df: () => UI.printLine(`Filesystem      Size  Used  Avail Use%  Mounted on\n/dev/persaud       ∞     0      ∞   0%  /`),
       du: () => UI.printLine(`∞\t${FS.displayPath(State.currentDir)}`),
