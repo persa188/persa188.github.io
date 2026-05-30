@@ -126,12 +126,14 @@
           overflow: hidden;
           white-space: nowrap;
           width: 0; 
-          animation: type 0.9s steps(19, end) 0.5s forwards; 
+          animation: type 0.9s steps(19, end) 0.5s forwards;
+          will-change: width;
         }
 
         .term-cursor {
           margin-left: 2px;
           color: #39CCCC;
+          will-change: opacity;
         }
 
         .top-cursor {
@@ -158,11 +160,12 @@
           display: inline-block;
           max-width: 100%;
           overflow-wrap: anywhere;
+          will-change: transform, color;
         }
 
-        .initial-link:nth-child(1) { animation: snapIn 0s forwards 1.6s; }
-        .initial-link:nth-child(2) { animation: snapIn 0s forwards 1.8s; }
-        .initial-link:nth-child(3) { animation: snapIn 0s forwards 2.0s; }
+        .initial-link:nth-child(1) { animation: snapIn 0s forwards 1.6s; will-change: opacity; }
+        .initial-link:nth-child(2) { animation: snapIn 0s forwards 1.8s; will-change: opacity; }
+        .initial-link:nth-child(3) { animation: snapIn 0s forwards 2.0s; will-change: opacity; }
 
         .f-ico:hover, .f-ico.selected {
           color: #39CCCC;
@@ -183,6 +186,7 @@
           opacity: 0;
           margin-bottom: 0;
           animation: snapIn 0s forwards 2.2s;
+          will-change: opacity;
         }
 
         .terminal-input, .terminal-input-locked {
@@ -395,7 +399,7 @@
       HOME: '/home/daniel',
       MAX_COMMANDS: 30,
       ALIASES: { 'll': 'ls -l', 'la': 'ls -la', 'l': 'ls' },
-      COMMANDS: ['ls', 'll', 'la', 'l', 'cd', 'pwd', 'df', 'du', 'mv', 'cp', 'echo', 'cat', 'decrypt', 'whoami', 'sudo', 'clear', 'sh', 'bash', 'fullscreen']
+      COMMANDS: ['ls', 'll', 'la', 'l', 'cd', 'pwd', 'df', 'du', 'mv', 'cp', 'rm', 'mkdir', 'echo', 'cat', 'decrypt', 'whoami', 'sudo', 'clear', 'sh', 'bash', 'fullscreen', 'help', 'man']
     };
 
     // --- 2. State Management ---
@@ -440,6 +444,29 @@
         'dpsd.ca.md': "you're literally using it",
         'amazon.md': `# Amazon\n**Software Engineer II** · Toronto, ON · 2022 — present\n\n- Feb 2026 — present · Amazon Books\n- Aug 2025 — Feb 2026 · Amazon Customer Service\n- 2022 — Aug 2025 · Security (client, device, OS)`,
         'carta.md': '# Carta\n\n**Software Engineer** · Toronto, ON\n\n[role description — edit me]'
+      },
+      // short = one-liner for `help`; long = body for `man <cmd>`
+      manPages: {
+        ls:         { short: 'list directory contents',              long: 'ls [-l] [-a] [file]\n\nList information about files and directories.\n\n  -l    use a long listing format\n  -a    include entries starting with .' },
+        cd:         { short: 'change the working directory',         long: 'cd [dir]\n\nChange the current directory to dir. With no argument, change to the home directory.' },
+        pwd:        { short: 'print working directory',              long: 'pwd\n\nPrint the full pathname of the current working directory.' },
+        cat:        { short: 'concatenate and print files',          long: 'cat file\n\nPrint the contents of file to standard output.' },
+        echo:       { short: 'display a line of text',               long: 'echo [text...]\n\nWrite its arguments to standard output.' },
+        mkdir:      { short: 'make directories',                     long: 'mkdir directory\n\nCreate the named directory if it does not already exist.' },
+        rm:         { short: 'remove files or directories',          long: 'rm [-r] file\n\nRemove files. Use -r to remove directories and their contents recursively.' },
+        cp:         { short: 'copy files and directories',           long: 'cp [-r] source dest\n\nCopy source to dest. Use -r to copy directories recursively.' },
+        mv:         { short: 'move (rename) files',                  long: 'mv source dest\n\nRename source to dest, or move source into directory dest. Handles directories without extra flags.' },
+        df:         { short: 'report file system disk space usage',  long: 'df\n\nDisplay the amount of disk space available on the file system.' },
+        du:         { short: 'estimate file space usage',            long: 'du\n\nSummarize disk usage of the current directory.' },
+        decrypt:    { short: 'decrypt an encrypted file',            long: 'decrypt -k <key> -f <file>\n\nDecrypt an AES-256-GCM file. The key is derived as SHA-256(password).\n\n  -k <key>   decryption key\n  -f <file>  encrypted file to read' },
+        whoami:     { short: 'print effective user name',            long: 'whoami\n\nPrint the user name associated with the current effective user ID.' },
+        sudo:       { short: 'execute a command as another user',    long: 'sudo command\n\nExecute a command as the superuser. Requires sudoers privileges.' },
+        clear:      { short: 'clear the terminal screen',            long: 'clear\n\nClear the terminal screen of previous output.' },
+        sh:         { short: 'run drop_me_a_line.sh',                long: 'sh\n\nDisplay the contact links.' },
+        bash:       { short: 'run drop_me_a_line.sh',                long: 'bash\n\nDisplay the contact links.' },
+        fullscreen: { short: 'toggle fullscreen terminal',           long: 'fullscreen [--exit]\n\nEnter fullscreen terminal mode. Use --exit to leave.' },
+        help:       { short: 'list available commands',              long: 'help [command]\n\nList all available commands, or show the summary for a single command.' },
+        man:        { short: 'display the manual for a command',     long: 'man command\n\nDisplay the manual page for the given command.' }
       }
     };
 
@@ -457,6 +484,28 @@
       },
       
       displayPath: (path) => path.startsWith(CONFIG.HOME) ? '~' + path.slice(CONFIG.HOME.length) : path,
+
+      // Format a date like coreutils `ls`: "May  1 09:00" (24h, space-padded day, no comma).
+      lsDate: (d = new Date()) => {
+        const mon = d.toLocaleString('en-US', { month: 'short' });
+        const day = String(d.getDate()).padStart(2, ' ');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        return `${mon} ${day} ${hh}:${mm}`;
+      },
+
+      // Single source of truth for filesystem entries. Caller's real values win;
+      // any omitted field is backfilled with a valid default so no command can
+      // ever create a partial record. mkdir/cp/mv all build entries through this.
+      makeEntry: (over = {}) => ({
+        name: '',
+        type: 'file',
+        perms: over.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--',
+        owner: 'daniel',
+        size: '4096',
+        date: FS.lsDate(),
+        ...over
+      }),
       
       // The single source of truth for checking if a file/dir exists and its permissions
       getEntry: (pathStr, commandName) => {
@@ -470,7 +519,12 @@
 
         // Exact directory match
         if (MOCK_DATA.fileSystem[targetPath]) {
-          result.entry = { name: targetPath.split('/').pop() || '/', type: 'dir' };
+          // Pull the real entry record (with perms/owner/size/date) from the parent
+          // listing so callers like cp/mv copy complete metadata, not a stub.
+          const dirParent = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+          const dirName = targetPath.split('/').pop() || '/';
+          const real = MOCK_DATA.fileSystem[dirParent]?.find(e => e.name === dirName);
+          result.entry = real || FS.makeEntry({ name: dirName, type: 'dir' });
           result.content = MOCK_DATA.fileSystem[targetPath];
           return result;
         }
@@ -505,6 +559,22 @@
       },
       
       output: (text, isHtml = false) => UI.printLine('> ' + text, isHtml),
+
+      // Render the usage/help text for a command from the single manPages source.
+      help: (cmd) => UI.printLine(`Usage: ${MOCK_DATA.manPages[cmd].long}`),
+
+      // Man pages don't reflow; render at their true column width and scroll horizontally.
+      manPage: (text) => {
+        const el = document.createElement('div');
+        el.className = 'dynamic-output';
+        el.style.whiteSpace = 'pre';
+        el.style.overflowX = 'auto';
+        el.style.letterSpacing = '0';
+        el.style.paddingLeft = '0';
+        el.innerText = text;
+        UI.container.appendChild(el);
+        UI.container.scrollTop = UI.container.scrollHeight;
+      },
       
       renderLinks: () => {
         const html = `
@@ -591,12 +661,21 @@
         const isLong = flags.some(f => ['-l', '-la', '-al'].includes(f));
         const showHidden = flags.some(f => ['-a', '-la', '-al'].includes(f));
 
-        let out = isLong ? 'total 24<br>' : '';
-        content.forEach(f => {
-          if (!showHidden && f.name.startsWith('.')) return;
+        const visible = content.filter(f => showHidden || !f.name.startsWith('.'));
+        // Block count roughly 4 per entry, matching coreutils' 1K-block convention here.
+        let out = isLong ? `total ${visible.length * 4}<br>` : '';
+        visible.forEach(f => {
           const color = f.type === 'dir' ? '#39CCCC' : (f.type === 'exec' ? '#4CAF50' : '#A9A9A9');
-          if (isLong) out += `${f.perms} 1 ${f.owner} ${f.owner} ${f.size.padStart(5, ' ')} ${f.date} <span style="color:${color}">${f.name}</span><br>`;
-          else out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
+          if (isLong) {
+            // Defensive defaults so a malformed entry can never blank the whole listing.
+            const perms = f.perms || (f.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--');
+            const owner = f.owner || 'daniel';
+            const size = String(f.size ?? '4096').padStart(5, ' ');
+            const date = f.date || FS.lsDate();
+            out += `${perms} 1 ${owner} ${owner} ${size} ${date} <span style="color:${color}">${f.name}</span><br>`;
+          } else {
+            out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
+          }
         });
         UI.printLine(out, true);
       },
@@ -627,8 +706,113 @@
       clear: () => document.querySelectorAll('.dynamic-output, .contact-links:not(#initial-links), .term-prompt:not(#first-prompt)').forEach(o => o.remove()),
       whoami: () => UI.output(`mallory`),
       sudo: () => UI.output(`mallory is not in the sudoers file. This incident will be reported.`),
-      mv: (args) => UI.output(args.length < 3 ? `mv: missing file operand` : `mv: cannot move '${args[1]}' to '${args[2]}': Permission denied`),
-      cp: (args) => UI.output(args.length < 3 ? `cp: missing file operand` : `cp: cannot create regular file '${args[2]}': Permission denied`),
+      rm: (args) => {
+        if (args.includes('-h') || args.includes('--help')) return UI.help('rm');
+        if (args.length < 2) return UI.output('rm: missing operand');
+        const target = args.find(a => !a.startsWith('-') && a !== 'rm');
+        const targetPath = FS.resolvePath(target);
+        
+        if (!targetPath.startsWith(CONFIG.HOME)) return UI.output(`rm: cannot remove '${target}': Permission denied`);
+        
+        const { entry, error } = FS.getEntry(target, 'rm');
+        if (error) return UI.output(error);
+        
+        const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+        const filename = targetPath.substring(targetPath.lastIndexOf('/') + 1);
+        
+        if (entry.type === 'dir' && !args.includes('-r')) return UI.output(`rm: cannot remove '${target}': Is a directory`);
+        
+        MOCK_DATA.fileSystem[parentPath] = MOCK_DATA.fileSystem[parentPath].filter(f => f.name !== filename);
+        if (entry.type === 'dir') delete MOCK_DATA.fileSystem[targetPath];
+        if (MOCK_DATA.fileContents[filename]) delete MOCK_DATA.fileContents[filename];
+      },
+
+      cp: (args, asCmd = 'cp') => {
+        if (args.includes('-h') || args.includes('--help')) return UI.help('cp');
+        if (args.length < 3) return UI.output(`${asCmd}: missing file operand`);
+        const recursive = args.includes('-r');
+        const nonFlags = args.filter(a => !a.startsWith('-') && a !== 'cp');
+        const source = nonFlags[0];
+        const dest = nonFlags[1];
+        const sourcePath = FS.resolvePath(source), destPath = FS.resolvePath(dest);
+        
+        if (!sourcePath.startsWith(CONFIG.HOME) || !destPath.startsWith(CONFIG.HOME)) {
+          return UI.output(`cannot create regular file '${dest}': Permission denied`);
+        }
+        
+        const { entry: sourceEntry, error: sourceError } = FS.getEntry(source, 'cp');
+        if (sourceError) return UI.output(sourceError);
+        if (sourceEntry.type === 'dir' && !recursive) return UI.output(`${asCmd}: -r not specified; omitting directory '${source}'`);
+        
+        const sourceFilename = sourcePath.substring(sourcePath.lastIndexOf('/') + 1);
+        let destParent, destFilename;
+        
+        if (destPath.endsWith('/') || MOCK_DATA.fileSystem[destPath]) {
+          destParent = destPath;
+          destFilename = sourceFilename;
+        } else {
+          destParent = destPath.substring(0, destPath.lastIndexOf('/')) || '/';
+          destFilename = destPath.substring(destPath.lastIndexOf('/') + 1);
+        }
+        
+        const finalDestPath = destParent + '/' + destFilename;
+        
+        if (!MOCK_DATA.fileSystem[destParent]) return UI.output(`cannot create regular file '${dest}': No such file or directory`);
+        if (MOCK_DATA.fileSystem[destParent].find(f => f.name === destFilename)) return UI.output(`cannot create regular file '${dest}': File exists`);
+        
+        if (sourceEntry.type === 'dir') {
+          // Copy directory recursively
+          MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
+          MOCK_DATA.fileSystem[finalDestPath] = [...MOCK_DATA.fileSystem[sourcePath]];
+          
+          // Copy all files in directory
+          MOCK_DATA.fileSystem[sourcePath].forEach(file => {
+            if (file.type !== 'dir' && file.name !== '.' && file.name !== '..' && MOCK_DATA.fileContents[file.name]) {
+              MOCK_DATA.fileContents[file.name] = MOCK_DATA.fileContents[file.name];
+            }
+          });
+        } else {
+          // Copy file
+          MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
+          if (MOCK_DATA.fileContents[sourceFilename]) MOCK_DATA.fileContents[destFilename] = MOCK_DATA.fileContents[sourceFilename];
+        }
+      },
+
+      mv: (args) => {
+        if (args.includes('-h') || args.includes('--help')) return UI.help('mv');
+        if (args.length < 3) return UI.output('mv: missing file operand');
+        
+        const nonFlags = args.filter(a => !a.startsWith('-') && a !== 'mv');
+        const source = nonFlags[0];
+        const dest = nonFlags[1];
+        
+        // mv handles directories without -r; always copy recursively internally.
+        Commands.cp(['cp', '-r', source, dest], 'mv');
+        if (!UI.container.lastElementChild.textContent.includes('cannot') && !UI.container.lastElementChild.textContent.includes('omitting')) {
+          Commands.rm(['rm', '-r', source]);
+        }
+      },
+
+      mkdir: (args) => {
+        if (args.includes('-h') || args.includes('--help')) return UI.help('mkdir');
+        if (args.length < 2) return UI.output('mkdir: missing operand');
+        const target = args.find(a => !a.startsWith('-') && a !== 'mkdir');
+        const targetPath = FS.resolvePath(target);
+        
+        if (!targetPath.startsWith(CONFIG.HOME)) return UI.output(`mkdir: cannot create directory '${target}': Permission denied`);
+        if (MOCK_DATA.fileSystem[targetPath]) return UI.output(`mkdir: cannot create directory '${target}': File exists`);
+        
+        const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+        const dirname = targetPath.substring(targetPath.lastIndexOf('/') + 1);
+        
+        if (!MOCK_DATA.fileSystem[parentPath]) return UI.output(`mkdir: cannot create directory '${target}': No such file or directory`);
+        
+        MOCK_DATA.fileSystem[parentPath].push(FS.makeEntry({ name: dirname, type: 'dir' }));
+        MOCK_DATA.fileSystem[targetPath] = [
+          FS.makeEntry({ name: '.', type: 'dir' }),
+          FS.makeEntry({ name: '..', type: 'dir' })
+        ];
+      },
       df: () => UI.printLine(`Filesystem      Size  Used  Avail Use%  Mounted on\n/dev/persaud       ∞     0      ∞   0%  /`),
       du: () => UI.printLine(`∞\t${FS.displayPath(State.currentDir)}`),
       
@@ -638,7 +822,7 @@
 
       decrypt: async (args) => {
         if (args.includes('-h') || args.includes('--help') || args.length === 1) {
-          return UI.printLine(`Usage: decrypt [-h] -k <key> -f <file>\n\n  -h, --help     show this help\n  -k <key>       decryption key\n  -f <file>      encrypted file to read\n\nFiles are AES-256-GCM, key derived as SHA-256(password).`);
+          return UI.help('decrypt');
         }
 
         let key = null, file = null;
@@ -679,20 +863,83 @@
           document.body.classList.add('fullscreen');
           UI.output('Entered fullscreen mode (use "fullscreen --exit" to exit)');
         }
+      },
+
+      help: (args) => {
+        const pages = MOCK_DATA.manPages;
+        const topic = args[1];
+        if (topic) {
+          const p = pages[topic];
+          if (!p) return UI.output(`help: no help topics match '${topic}'`);
+          return UI.printLine(`${topic} - ${p.short}`);
+        }
+        // Width based on longest command name for clean alignment.
+        const names = Object.keys(pages);
+        const width = Math.max(...names.map(n => n.length));
+        let out = 'Available commands (try "man &lt;command&gt;" for details):<br><br>';
+        names.forEach(n => {
+          out += `<span style="color:#4CAF50">${n.padEnd(width + 2, '\u00A0')}</span>${pages[n].short}<br>`;
+        });
+        UI.printLine(out, true);
+      },
+
+      man: (args) => {
+        if (!args[1]) return UI.output('What manual page do you want?');
+        const name = args[1];
+        const p = MOCK_DATA.manPages[name];
+        if (!p) return UI.output(`No manual entry for ${name}`);
+
+        // Split the stored body: first line is the synopsis, the rest the description.
+        const [synopsis, ...rest] = p.long.split('\n');
+        const description = rest.join('\n').replace(/^\n+/, '');
+
+        // Justified header/footer: TAG  ...  center  ...  TAG  (man uses ~78 cols).
+        const WIDTH = 78;
+        const tag = `${name.toUpperCase()}(1)`;
+        const center = 'User Commands';
+        const justify = (left, mid, right) => {
+          const sides = left.length + right.length;
+          const gap = Math.max(1, WIDTH - sides - mid.length);
+          const leftPad = Math.floor(gap / 2);
+          const rightPad = gap - leftPad;
+          return left + ' '.repeat(leftPad) + mid + ' '.repeat(rightPad) + right;
+        };
+
+        // Section bodies are indented under a left-aligned heading, like real man.
+        const indent = (text) => text.split('\n').map(l => l === '' ? '' : '       ' + l).join('\n');
+
+        let out = justify(tag, center, tag) + '\n\n';
+        out += 'NAME\n' + indent(`${name} - ${p.short}`) + '\n\n';
+        out += 'SYNOPSIS\n' + indent(synopsis) + '\n\n';
+        if (description) out += 'DESCRIPTION\n' + indent(description) + '\n\n';
+        out += justify(tag, center, tag);
+
+        UI.manPage(out);
       }
     };
 
     // --- 7. Autocomplete Engine ---
     const Autocomplete = {
+      // Commands that should only complete directories as their argument.
+      DIR_ONLY: ['cd'],
+
       handle: (input) => {
         const val = input.value, pos = input.selectionStart;
         const before = val.substring(0, pos), after = val.substring(pos);
         const prefix = before.split(' ').pop();
-        const isFirstWord = !before.includes(' ');
 
-        const matches = (isFirstWord && !prefix.match(/^(\.|\/|~)/)) 
-          ? CONFIG.COMMANDS.filter(c => c.startsWith(prefix)).map(c => ({ name: c, display: c, type: 'exec' }))
-          : Autocomplete.getFiles(prefix);
+        // First word only if there's no space yet before the cursor.
+        const isFirstWord = !before.trimStart().includes(' ');
+
+        let matches;
+        if (isFirstWord && !prefix.match(/^(\.|\/|~)/)) {
+          matches = CONFIG.COMMANDS.filter(c => c.startsWith(prefix))
+            .map(c => ({ name: c, display: c, type: 'exec' }));
+        } else {
+          // Pass the command word so file completion can filter by type.
+          const cmd = before.trimStart().split(/\s+/)[0];
+          matches = Autocomplete.getFiles(prefix, cmd);
+        }
 
         if (!matches.length) return;
 
@@ -716,16 +963,21 @@
         }
       },
       
-      getFiles: (partial) => {
+      getFiles: (partial, cmd) => {
         const lastSlash = partial.lastIndexOf('/');
         const dirPart = lastSlash === -1 ? '' : partial.substring(0, lastSlash + 1);
         const namePart = partial.substring(lastSlash + 1);
-        const targetDir = FS.resolvePath(dirPart.endsWith('/') ? dirPart.slice(0, -1) : dirPart);
+        const targetDir = dirPart ? FS.resolvePath(dirPart.endsWith('/') ? dirPart.slice(0, -1) : dirPart) : State.currentDir;
 
         if (!targetDir.startsWith(CONFIG.HOME) || !MOCK_DATA.fileSystem[targetDir]) return [];
 
+        const dirOnly = Autocomplete.DIR_ONLY.includes(cmd);
+
         return MOCK_DATA.fileSystem[targetDir]
-          .filter(e => e.name !== '.' && e.name !== '..' && (!e.name.startsWith('.') || namePart.startsWith('.')) && e.name.startsWith(namePart))
+          .filter(e => e.name !== '.' && e.name !== '..'
+            && (!e.name.startsWith('.') || namePart.startsWith('.'))
+            && e.name.startsWith(namePart)
+            && (!dirOnly || e.type === 'dir'))
           .map(e => ({ name: dirPart + e.name + (e.type === 'dir' ? '/' : ''), display: e.name + (e.type === 'dir' ? '/' : ''), type: e.type }));
       }
     };
@@ -772,7 +1024,12 @@
             
             if (++State.commandCount >= CONFIG.MAX_COMMANDS) return UI.triggerLockout();
             
-            Commands[args[0]] ? await Commands[args[0]](args) : UI.output(`bash: ${args[0]}: command not found`);
+            // Universal --help: any real command with a manpage responds to --help.
+            if (args.includes('--help') && MOCK_DATA.manPages[args[0]]) {
+              UI.help(args[0]);
+            } else {
+              Commands[args[0]] ? await Commands[args[0]](args) : UI.output(`bash: ${args[0]}: command not found`);
+            }
           }
           
           UI.createNewPrompt();
