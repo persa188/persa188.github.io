@@ -553,6 +553,51 @@
         }
         State.currentDir = MOCK_DATA.fileSystem[p] ? p : CONFIG.HOME;
       },
+
+      // Expand one shell-glob token (* and ? wildcards) against the filesystem.
+      // Returns matching paths in the same "dir/name" form the user typed, or the
+      // original token unchanged if it has no wildcard or matches nothing (bash default).
+      expandGlob: (token) => {
+        if (!/[*?]/.test(token)) return [token];
+
+        const lastSlash = token.lastIndexOf('/');
+        const dirPart = lastSlash === -1 ? '' : token.slice(0, lastSlash + 1); // keeps trailing /
+        const pattern = token.slice(lastSlash + 1);
+        const lookupDir = dirPart
+          ? FS.resolvePath(dirPart.endsWith('/') ? dirPart.slice(0, -1) : dirPart)
+          : State.currentDir;
+
+        const entries = MOCK_DATA.fileSystem[lookupDir];
+        if (!entries) return [token];
+
+        // Translate glob to regex; * => any run, ? => single char. Leading-dot files
+        // are excluded unless the pattern itself starts with a dot, matching bash.
+        const rx = new RegExp('^' + pattern
+          .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+          .replace(/\*/g, '.*')
+          .replace(/\?/g, '.') + '$');
+        const wantHidden = pattern.startsWith('.');
+
+        const matches = entries
+          .filter(e => e.name !== '.' && e.name !== '..')
+          .filter(e => wantHidden || !e.name.startsWith('.'))
+          .filter(e => rx.test(e.name))
+          .map(e => dirPart + e.name);
+
+        return matches.length ? matches : [token];
+      },
+
+      // Expand globs across a whole argument list, leaving the command word and any
+      // flags untouched. One token may expand into several paths.
+      expandArgs: (args) => {
+        const [cmd, ...rest] = args;
+        const out = [cmd];
+        rest.forEach(a => {
+          if (a.startsWith('-')) out.push(a);
+          else out.push(...FS.expandGlob(a));
+        });
+        return out;
+      },
       
       // The single source of truth for checking if a file/dir exists and its permissions
       getEntry: (pathStr, commandName) => {
@@ -782,58 +827,88 @@
         if (args.includes('-h') || args.includes('--help')) return UI.help('cp');
         if (args.length < 3) return UI.output(`${asCmd}: missing file operand`);
         const recursive = args.includes('-r');
-        const nonFlags = args.filter(a => !a.startsWith('-') && a !== 'cp');
-        const source = nonFlags[0];
-        const dest = nonFlags[1];
-        const sourcePath = FS.resolvePath(source), destPath = FS.resolvePath(dest);
-        
-        if (!sourcePath.startsWith(CONFIG.HOME) || !destPath.startsWith(CONFIG.HOME)) {
-          return UI.output(`cannot create regular file '${dest}': Permission denied`);
+        const nonFlags = args.filter(a => !a.startsWith('-') && a !== 'cp' && a !== 'mv');
+        if (nonFlags.length < 2) return UI.output(`${asCmd}: missing destination file operand after '${nonFlags[0]}'`);
+
+        const dest = nonFlags[nonFlags.length - 1];
+        const sources = nonFlags.slice(0, -1);
+        const destPath = FS.resolvePath(dest);
+        const destIsDir = destPath.endsWith('/') || !!MOCK_DATA.fileSystem[destPath];
+
+        // Multiple sources require the destination to be an existing directory.
+        if (sources.length > 1 && !destIsDir) {
+          return UI.output(`${asCmd}: target '${dest}': is not a directory`);
         }
-        
-        const { entry: sourceEntry, error: sourceError } = FS.getEntry(source, 'cp');
-        if (sourceError) return UI.output(sourceError);
-        if (sourceEntry.type === 'dir' && !recursive) return UI.output(`${asCmd}: -r not specified; omitting directory '${source}'`);
-        
-        const sourceFilename = sourcePath.substring(sourcePath.lastIndexOf('/') + 1);
-        let destParent, destFilename;
-        
-        if (destPath.endsWith('/') || MOCK_DATA.fileSystem[destPath]) {
-          destParent = destPath;
-          destFilename = sourceFilename;
-        } else {
-          destParent = destPath.substring(0, destPath.lastIndexOf('/')) || '/';
-          destFilename = destPath.substring(destPath.lastIndexOf('/') + 1);
-        }
-        
-        const finalDestPath = destParent + '/' + destFilename;
-        
-        if (!MOCK_DATA.fileSystem[destParent]) return UI.output(`cannot create regular file '${dest}': No such file or directory`);
-        if (MOCK_DATA.fileSystem[destParent].find(f => f.name === destFilename)) return UI.output(`cannot create regular file '${dest}': File exists`);
-        
-        if (sourceEntry.type === 'dir') {
-          // Register the directory in its parent, then deep-copy the whole tree.
-          MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
-          FS.copyTree(sourcePath, finalDestPath);
-        } else {
-          // Copy file
-          MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
-          if (MOCK_DATA.fileContents[sourcePath] !== undefined) MOCK_DATA.fileContents[finalDestPath] = MOCK_DATA.fileContents[sourcePath];
-        }
+
+        // Copy one source into the resolved destination. Returns true on success,
+        // false (after printing an error) on failure — callers like mv rely on this
+        // rather than scraping output text, since cp is silent on success.
+        const copyOne = (source) => {
+          const sourcePath = FS.resolvePath(source);
+          if (!sourcePath.startsWith(CONFIG.HOME) || !destPath.startsWith(CONFIG.HOME)) {
+            UI.output(`cannot create regular file '${dest}': Permission denied`); return false;
+          }
+
+          const { entry: sourceEntry, error: sourceError } = FS.getEntry(source, 'cp');
+          if (sourceError) { UI.output(sourceError); return false; }
+          if (sourceEntry.type === 'dir' && !recursive) { UI.output(`${asCmd}: -r not specified; omitting directory '${source}'`); return false; }
+
+          const sourceFilename = sourcePath.substring(sourcePath.lastIndexOf('/') + 1);
+          let destParent, destFilename;
+          if (destIsDir) {
+            destParent = MOCK_DATA.fileSystem[destPath] ? destPath : destPath.replace(/\/$/, '');
+            destFilename = sourceFilename;
+          } else {
+            destParent = destPath.substring(0, destPath.lastIndexOf('/')) || '/';
+            destFilename = destPath.substring(destPath.lastIndexOf('/') + 1);
+          }
+
+          const finalDestPath = destParent + '/' + destFilename;
+
+          // Refuse copying a directory into itself or one of its own descendants,
+          // which would otherwise recurse forever.
+          if (sourceEntry.type === 'dir' &&
+              (finalDestPath === sourcePath || finalDestPath.startsWith(sourcePath + '/'))) {
+            UI.output(`${asCmd}: cannot copy a directory, '${source}', into itself, '${dest}'`); return false;
+          }
+
+          if (!MOCK_DATA.fileSystem[destParent]) { UI.output(`cannot create regular file '${dest}': No such file or directory`); return false; }
+          if (MOCK_DATA.fileSystem[destParent].find(f => f.name === destFilename)) { UI.output(`cannot create regular file '${dest}': File exists`); return false; }
+
+          if (sourceEntry.type === 'dir') {
+            MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
+            FS.copyTree(sourcePath, finalDestPath);
+          } else {
+            MOCK_DATA.fileSystem[destParent].push(FS.makeEntry({ ...sourceEntry, name: destFilename }));
+            if (MOCK_DATA.fileContents[sourcePath] !== undefined) MOCK_DATA.fileContents[finalDestPath] = MOCK_DATA.fileContents[sourcePath];
+          }
+          return true;
+        };
+
+        // Attempt every source; succeed only if all of them copied.
+        return sources.map(copyOne).every(Boolean);
       },
 
       mv: (args) => {
         if (args.includes('-h') || args.includes('--help')) return UI.help('mv');
         if (args.length < 3) return UI.output('mv: missing file operand');
-        
+
         const nonFlags = args.filter(a => !a.startsWith('-') && a !== 'mv');
-        const source = nonFlags[0];
-        const dest = nonFlags[1];
-        
-        // mv handles directories without -r; always copy recursively internally.
-        Commands.cp(['cp', '-r', source, dest], 'mv');
-        if (!UI.container.lastElementChild.textContent.includes('cannot') && !UI.container.lastElementChild.textContent.includes('omitting')) {
-          Commands.rm(['rm', '-r', source]);
+        if (nonFlags.length < 2) return UI.output(`mv: missing destination file operand after '${nonFlags[0]}'`);
+
+        const dest = nonFlags[nonFlags.length - 1];
+        const sources = nonFlags.slice(0, -1);
+        const destPath = FS.resolvePath(dest);
+        const destIsDir = destPath.endsWith('/') || !!MOCK_DATA.fileSystem[destPath];
+
+        if (sources.length > 1 && !destIsDir) {
+          return UI.output(`mv: target '${dest}': is not a directory`);
+        }
+
+        // All-or-nothing: only remove the sources if every copy succeeded, so a
+        // partial failure never leaves things half-moved.
+        if (Commands.cp(['cp', '-r', ...sources, dest], 'mv')) {
+          sources.forEach(source => Commands.rm(['rm', '-r', source]));
         }
       },
 
@@ -1065,7 +1140,12 @@
           if (val) {
             const args = val.split(/\s+/);
             if (CONFIG.ALIASES[args[0]]) args.splice(0, 1, ...CONFIG.ALIASES[args[0]].split(/\s+/));
-            
+
+            // Shell-style glob expansion (e.g. *.md, ./*) before the command runs.
+            const expanded = FS.expandArgs(args);
+            args.length = 0;
+            args.push(...expanded);
+
             if (++State.commandCount >= CONFIG.MAX_COMMANDS) return UI.triggerLockout();
             
             // Universal --help: any real command with a manpage responds to --help.
