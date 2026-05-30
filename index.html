@@ -642,7 +642,13 @@
     // --- 5. UI Controller ---
     const UI = {
       container: document.getElementById('terminal-container'),
-      
+
+      // Escape user-controlled strings (filenames, paths) before they go into any
+      // innerHTML sink, so a crafted name like "<img onerror=...>" can't inject markup.
+      esc: (s) => String(s).replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      )),
+
       printLine: (text, isHtml = false) => {
         const el = document.createElement('div');
         el.className = 'dynamic-output';
@@ -689,7 +695,7 @@
         const newPrompt = document.createElement('div');
         newPrompt.className = 'term-prompt';
         newPrompt.style.marginBottom = '0'; 
-        newPrompt.innerHTML = `<span class="prompt-symbol">${FS.displayPath(State.currentDir)} $ </span><input type="text" class="terminal-input" spellcheck="false" autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">`;
+        newPrompt.innerHTML = `<span class="prompt-symbol">${UI.esc(FS.displayPath(State.currentDir))} $ </span><input type="text" class="terminal-input" spellcheck="false" autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other">`;
         
         UI.container.appendChild(newPrompt);
         newPrompt.querySelector('.terminal-input').focus();
@@ -737,6 +743,39 @@
             }, 500);
           }
         }, 180);
+      },
+
+      // rm -rf on home: actually wipe the mock fs, stream a few deletes, then the
+      // whole page collapses to a single "deleted." — no coming back.
+      triggerCrash: () => {
+        State.locked = true;
+        Object.keys(MOCK_DATA.fileSystem).forEach(k => delete MOCK_DATA.fileSystem[k]);
+        Object.keys(MOCK_DATA.fileContents).forEach(k => delete MOCK_DATA.fileContents[k]);
+
+        const victims = [
+          '/home/daniel/projects/.secret.txt',
+          '/home/daniel/projects/dpsd.ca.md',
+          '/home/daniel/resume/amazon.md',
+          '/home/daniel/resume/carta.md',
+          '/home/daniel/publickey.contact@dpsd.asc',
+          '/home/daniel/drop_me_a_line.sh',
+          '/home/daniel/.ctf'
+        ];
+
+        let i = 0;
+        const interval = setInterval(() => {
+          if (i < victims.length) {
+            UI.printLine(`removed '${victims[i]}'`);
+            i++;
+          } else {
+            clearInterval(interval);
+            setTimeout(() => {
+              // The entire page goes. One word left.
+              document.body.classList.remove('fullscreen');
+              document.body.innerHTML = '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#1E1E1E;color:#A9A9A9;font-family:SFMono-Regular,Consolas,monospace;font-size:14px;">deleted.</div>';
+            }, 450);
+          }
+        }, 90);
       }
     };
 
@@ -760,9 +799,9 @@
               const owner = f.owner || 'daniel';
               const size = String(f.size ?? '4096').padStart(5, ' ');
               const date = f.date || FS.lsDate();
-              out += `${perms} 1 ${owner} ${owner} ${size} ${date} <span style="color:${color}">${f.name}</span><br>`;
+              out += `${perms} 1 ${owner} ${owner} ${size} ${date} <span style="color:${color}">${UI.esc(f.name)}</span><br>`;
             } else {
-              out += `<span style="color:${color}; margin-right: 16px;">${f.name}</span>`;
+              out += `<span style="color:${color}; margin-right: 16px;">${UI.esc(f.name)}</span>`;
             }
           });
           return out;
@@ -786,7 +825,7 @@
         });
 
         if (fileNames.length) {
-          UI.printLine(fileNames.map(n => `<span style="margin-right:16px">${n}</span>`).join(''), true);
+          UI.printLine(fileNames.map(n => `<span style="margin-right:16px">${UI.esc(n)}</span>`).join(''), true);
         }
 
         const multi = (fileNames.length + dirs.length) > 1;
@@ -827,7 +866,11 @@
         if (args.length < 2) return UI.output('rm: missing operand');
         const target = args.find(a => !a.startsWith('-') && a !== 'rm');
         const targetPath = FS.resolvePath(target);
-        
+
+        // Accept bundled short flags too, so -r, -rf, -fr all count as recursive.
+        const flagChars = args.filter(a => /^-[a-zA-Z]+$/.test(a)).join('');
+        const recursive = flagChars.includes('r') || flagChars.includes('R');
+
         if (!targetPath.startsWith(CONFIG.HOME)) return UI.output(`rm: cannot remove '${target}': Permission denied`);
         
         const { entry, error } = FS.getEntry(target, 'rm');
@@ -836,9 +879,19 @@
         const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
         const filename = targetPath.substring(targetPath.lastIndexOf('/') + 1);
         
-        if (entry.type === 'dir' && !args.includes('-r')) return UI.output(`rm: cannot remove '${target}': Is a directory`);
-        
-        MOCK_DATA.fileSystem[parentPath] = MOCK_DATA.fileSystem[parentPath].filter(f => f.name !== filename);
+        if (entry.type === 'dir' && !recursive) return UI.output(`rm: cannot remove '${target}': Is a directory`);
+
+        // rm -rf on your own home is the classic "you broke everything" moment —
+        // simulate a system meltdown rather than quietly refusing.
+        if (targetPath === CONFIG.HOME && entry.type === 'dir' && recursive) {
+          return UI.triggerCrash();
+        }
+
+        // Parent should always exist for a resolvable target, but guard anyway so a
+        // pathological path can never throw and break the prompt.
+        if (MOCK_DATA.fileSystem[parentPath]) {
+          MOCK_DATA.fileSystem[parentPath] = MOCK_DATA.fileSystem[parentPath].filter(f => f.name !== filename);
+        }
         if (entry.type === 'dir') {
           FS.removeTree(targetPath);
           FS.reconcileCwd();
@@ -1122,7 +1175,7 @@
         } else {
           const line = document.createElement('div');
           line.className = 'dynamic-output';
-          line.innerHTML = matches.map(m => `<span style="color: ${m.type === 'dir' ? '#39CCCC' : (m.type === 'exec' ? '#4CAF50' : '#A9A9A9')}; margin-right: 16px;">${m.display}</span>`).join('');
+          line.innerHTML = matches.map(m => `<span style="color: ${m.type === 'dir' ? '#39CCCC' : (m.type === 'exec' ? '#4CAF50' : '#A9A9A9')}; margin-right: 16px;">${UI.esc(m.display)}</span>`).join('');
           UI.container.insertBefore(line, input.closest('.term-prompt'));
           UI.container.scrollTop = UI.container.scrollHeight;
         }
